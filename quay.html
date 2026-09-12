@@ -205,6 +205,10 @@ function notify(n){
 function login(){
   var u = $('lgU').value.trim(), p = $('lgP').value;
   if(!u || !p){ $('lgMsg').textContent='Nhập đủ tài khoản và mật khẩu.'; return; }
+  if(!window.crypto || !window.crypto.subtle){
+    $('lgMsg').textContent = 'Trang đang chạy KHÔNG qua HTTPS nên trình duyệt chặn mã hoá mật khẩu. Chờ chứng chỉ HTTPS của tên miền cấp xong, hoặc tạm dùng địa chỉ .github.io.';
+    return;
+  }
   $('lgMsg').textContent = 'Đang kiểm tra…';
   sha256(CFG.SALT + '|' + u.toLowerCase() + '|' + p).then(function(h){
     return api('auth.login', {user:u, pass:h});
@@ -213,7 +217,10 @@ function login(){
     S.tok = r.tok; S.branch = r.branchId; S.bname = r.branchName;
     sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.tok, b:r.branchId, n:r.branchName}));
     start();
-  }).catch(function(){ $('lgMsg').textContent='Không kết nối được máy chủ.'; });
+  }).catch(function(err){
+    console.error('BMB đăng nhập lỗi:', err);
+    $('lgMsg').textContent='Không kết nối được máy chủ. (Xem chi tiết trong Console — F12)';
+  });
 }
 
 function start(){
