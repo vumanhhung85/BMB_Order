@@ -7,112 +7,125 @@
 <title>BMB — Quầy phục vụ</title>
 <style>
 :root{
-  --bg:#16131f; --panel:#221e30; --panel-2:#2c2740; --line:#3a3350;
-  --ink:#f7f4fb; --ink-dim:#b9aecb; --ink-faint:#7d7295;
-  --brand:#ff2e76; --brand-ink:#ffd7e6;
-  --ok:#33d690; --ok-bg:#12301f;
-  --warn:#ffb020; --warn-bg:#3a2a0e;
-  --bad:#ff5d5d; --bad-bg:#3a1620;
+  --bg:#241d38; --panel:#2f2749; --panel-2:#3c3260; --line:#4f4278;
+  --ink:#ffffff; --ink-dim:#d2c8ea; --ink-faint:#a094c4;
+  --gold:#ffc23c; --gold-ink:#2a1c02;
+  --pink:#ff2f7c;
+  --ok:#33d690; --ok-bg:#17402c;
+  --warn:#ff9d42; --warn-bg:#452b12;
+  --bad:#ff4d6d; --bad-bg:#451a28;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   -webkit-font-smoothing:antialiased}
 button,input{font-family:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-.top{display:flex;align-items:flex-end;gap:22px;padding:14px 20px 0;
+.top{display:flex;align-items:center;gap:24px;padding:14px 20px;
   background:var(--panel-2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
-.brand-mark{display:flex;align-items:center;font-size:14px;font-weight:800;letter-spacing:.3px;padding-bottom:13px;white-space:nowrap}
-.brand-mark i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--brand);margin-right:9px}
-.tabs{display:flex;gap:2px;margin-left:6px}
-.tab{padding:11px 15px 12px;color:var(--ink-faint);cursor:pointer;font-size:14px;font-weight:600;
-  border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
-.tab:hover{color:var(--ink-dim)}
-.tab.on{color:var(--ink);border-bottom-color:var(--brand)}
-.who{margin-left:auto;padding-bottom:11px;font-size:13px;color:var(--ink-faint);display:flex;align-items:center;gap:10px;white-space:nowrap}
-.who button{background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:600}
-.who button:hover{border-color:var(--brand);color:var(--ink)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{line-height:1.05}
+.logo .l1{display:block;font-size:19px;font-weight:900;color:var(--gold);letter-spacing:.5px}
+.logo .l2{display:block;font-size:10px;font-weight:800;color:var(--pink);letter-spacing:2px}
+.ttl{border-left:1px solid var(--line);padding-left:12px;line-height:1.3}
+.ttl b{display:block;font-size:14.5px;font-weight:800;color:var(--ink)}
+.ttl span{display:block;font-size:12px;color:var(--ink-faint)}
+.tabs{display:flex;gap:8px;margin-left:6px}
+.tab{padding:10px 18px;border-radius:999px;background:var(--panel);color:var(--ink-dim);
+  cursor:pointer;font-size:14px;font-weight:700;white-space:nowrap}
+.tab:hover{background:var(--panel-2);color:var(--ink)}
+.tab.on{background:var(--gold);color:var(--gold-ink)}
+.who{margin-left:auto;font-size:13px;color:var(--ink-faint);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.who button{background:var(--panel);color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:700}
+.who button:hover{border-color:var(--gold);color:var(--ink)}
 
-.pg{display:none;padding:20px;max-width:1360px;margin:0 auto}
+.pg{display:none;padding:22px;max-width:1360px;margin:0 auto}
 .pg.on{display:block}
 
 /* ---- đăng nhập ---- */
-#login{max-width:380px;margin:13vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:34px 30px 28px}
-.lg-brand{display:flex;align-items:center;font-size:13px;font-weight:800;letter-spacing:.3px;color:var(--ink-dim);margin-bottom:20px}
-.lg-brand i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--brand);margin-right:8px}
-#login h2{margin:0 0 6px;font-size:21px;font-weight:800}
+#login{max-width:380px;margin:12vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:34px 30px 28px}
+.lg-brand{margin-bottom:22px}
+.lg-brand .l1{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:.5px;line-height:1}
+.lg-brand .l2{font-size:11px;font-weight:800;color:var(--pink);letter-spacing:3px;margin-top:3px}
+#login h2{margin:0 0 6px;font-size:20px;font-weight:800}
 #login .sub{margin:0 0 22px;font-size:13.5px;color:var(--ink-faint);line-height:1.5}
 .fld{display:block;margin-bottom:14px}
-.fld span{display:block;font-size:12px;font-weight:600;color:var(--ink-faint);margin-bottom:6px}
-.fld input{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;font-size:15px}
-.fld input:focus{border-color:var(--brand)}
-#login button{width:100%;background:var(--brand);color:#fff;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
-#login button:hover{filter:brightness(1.07)}
+.fld span{display:block;font-size:12px;font-weight:700;color:var(--ink-faint);margin-bottom:6px}
+.fld input{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:13px;padding:13px 14px;font-size:15px}
+.fld input:focus{border-color:var(--gold)}
+#login button{width:100%;background:var(--gold);color:var(--gold-ink);border:0;border-radius:999px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
+#login button:hover{filter:brightness(1.06)}
 #lgMsg{color:var(--bad);font-size:13px;min-height:20px;margin-top:12px;line-height:1.5}
 
 /* ---- lưới phòng: bảng vật lý, hình khối riêng biệt với thẻ đơn ---- */
 .sect-lbl{font-size:13px;font-weight:700;color:var(--ink-dim);margin:2px 0 10px}
-.rooms{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
-.rm{width:74px;height:62px;border-radius:10px;background:var(--panel);border:1px solid var(--line);
+.rooms{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+.rm{width:76px;height:64px;border-radius:16px;background:var(--panel);border:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
   font-size:10.5px;color:var(--ink-faint);gap:2px}
+.rm:hover{border-color:var(--ink-faint)}
 .rm:active{transform:scale(.96)}
 .rm b{font-size:19px;font-weight:800;color:var(--ink-dim);font-variant-numeric:tabular-nums}
 .rm.open{background:var(--ok);border-color:var(--ok)}
 .rm.open b,.rm.open span{color:#06301d}
 .rm.open span{opacity:.8}
 .rm.long{background:var(--warn);border-color:var(--warn)}
-.rm.long b,.rm.long span{color:#3a2506}
+.rm.long b,.rm.long span{color:#3a1f04}
 
 /* ---- hàng đợi ---- */
 .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
 .col h3{display:flex;align-items:center;margin:0 0 12px;font-size:15px;font-weight:700;color:var(--ink)}
 .col h3 .dot{width:8px;height:8px;border-radius:50%;margin-right:9px;background:var(--ink-faint)}
-.col.c-moi h3 .dot{background:var(--ink-faint)}
+.col.c-moi h3 .dot{background:var(--gold)}
 .col.c-nhan h3 .dot{background:var(--ok)}
 .col.c-nghi h3 .dot{background:var(--bad)}
 
-.card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--brand);
-  border-radius:14px;padding:14px 14px 12px;margin-bottom:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--pink);
+  border-radius:18px;padding:15px 15px 13px;margin-bottom:11px;position:relative}
 .card.sv{border-left-color:var(--warn)}
 .card.grey{opacity:.6;border-left-color:var(--ink-faint);background:var(--bg)}
-.card .hd{display:flex;align-items:baseline;gap:10px}
-.card .rn{font-size:27px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+.card .oid{position:absolute;top:13px;right:14px;border:1px solid var(--gold);color:var(--gold);
+  font-size:10.5px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:999px}
+.card .hd{display:flex;align-items:center;gap:9px;padding-right:70px}
+.card .rn{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+.card .tag{background:var(--panel-2);color:var(--ink-dim);font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;white-space:nowrap}
 .card .ago{margin-left:auto;font-size:13px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
 .card .ago.w{color:var(--warn)}
 .card .ago.d{color:var(--bad)}
-.card .it{margin:9px 0 0;font-size:15.5px;line-height:1.5;color:var(--ink-dim)}
-.card .nt{margin-top:6px;font-size:13px;color:var(--ink-faint);font-style:italic}
-.card .mt{margin-top:6px;font-size:11.5px;color:var(--ink-faint)}
-.card .ac{display:flex;gap:8px;margin-top:11px}
-.card .ac button{flex:1;border:0;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer}
-.a1{background:var(--brand);color:#fff}
+.card .it{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:var(--ink-dim)}
+.card .nt{display:inline-block;margin-top:8px;background:var(--panel-2);border-radius:10px;
+  padding:6px 11px;font-size:13px;color:var(--ink-dim)}
+.card .mt{margin-top:7px;font-size:11.5px;color:var(--ink-faint)}
+.card .ac{display:flex;gap:8px;margin-top:12px}
+.card .ac button{flex:1;border:0;border-radius:999px;padding:11px;font-size:13.5px;font-weight:800;cursor:pointer}
+.a1{background:var(--gold);color:var(--gold-ink)}
 .a2{background:var(--ok);color:#06301d}
 .a3{background:transparent;color:var(--ink-dim);border:1px solid var(--line)}
 .a3:hover{border-color:var(--ink-faint)}
-.pos{margin-top:9px;background:var(--warn-bg);border:1px solid var(--warn);color:#ffd699;border-radius:9px;padding:8px 10px;font-size:12.5px;display:flex;align-items:center;gap:8px}
-.pos button{margin-left:auto;background:var(--warn);color:#2a1a06;border:0;border-radius:7px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:12px}
+.pos{margin-top:10px;background:var(--warn-bg);border:1px solid var(--warn);color:#ffd9ac;border-radius:12px;padding:8px 11px;font-size:12.5px;display:flex;align-items:center;gap:8px}
+.pos button{margin-left:auto;background:var(--warn);color:#2a1704;border:0;border-radius:999px;padding:6px 12px;font-weight:800;cursor:pointer;font-size:12px}
 .empty{color:var(--ink-faint);font-size:13.5px;text-align:center;padding:28px 0}
 
 /* ---- bảng ---- */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left}
-th{color:var(--ink-faint);font-weight:600;font-size:12.5px}
+th{color:var(--ink-faint);font-weight:700;font-size:12.5px}
 td{color:var(--ink-dim)}
 td b{color:var(--ink)}
 .mut{color:var(--ink-faint)}
-.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700}
+.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:11.5px;font-weight:700}
 .p-ok{background:var(--ok-bg);color:var(--ok)}
 .p-w{background:var(--warn-bg);color:var(--warn)}
 .p-n{background:var(--panel-2);color:var(--ink-faint)}
-.hint{background:var(--panel);border-left:3px solid var(--brand);border-radius:8px;
+.hint{background:var(--panel);border-left:3px solid var(--gold);border-radius:12px;
   padding:14px 16px;font-size:13.5px;color:var(--ink-dim);line-height:1.65;margin-bottom:18px}
 .hint b{color:var(--ink)}
-button.mini{background:transparent;border:1px solid var(--line);color:var(--ink-dim);
-  border-radius:10px;padding:10px 16px;font-size:13.5px;cursor:pointer;margin-right:10px;font-weight:600}
-button.mini:hover{border-color:var(--brand);color:var(--ink)}
+button.mini{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);
+  border-radius:999px;padding:10px 18px;font-size:13.5px;cursor:pointer;margin-right:10px;font-weight:700}
+button.mini:hover{border-color:var(--gold);color:var(--ink)}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -120,7 +133,7 @@ button.mini:hover{border-color:var(--brand);color:var(--ink)}
 <body>
 
 <div id="login">
-  <div class="lg-brand"><i></i>BOOM MUSIC BOX</div>
+  <div class="lg-brand"><div class="l1">BOOM</div><div class="l2">MUSIC BOX</div></div>
   <h2>Quầy phục vụ</h2>
   <p class="sub">Đăng nhập để xem hàng đợi yêu cầu của chi nhánh.</p>
   <div class="fld"><span>Tài khoản chi nhánh</span><input id="lgU" autocomplete="username"></div>
@@ -131,7 +144,10 @@ button.mini:hover{border-color:var(--brand);color:var(--ink)}
 
 <div id="app" style="display:none">
   <div class="top">
-    <div class="brand-mark"><i></i>BOOM MUSIC BOX</div>
+    <div class="brand">
+      <div class="logo"><span class="l1">BOOM</span><span class="l2">MUSIC BOX</span></div>
+      <div class="ttl"><b>Quầy phục vụ</b><span>Gọi &amp; xử lý yêu cầu tại phòng</span></div>
+    </div>
     <div class="tabs">
       <div class="tab on" data-p="p1">Hàng đợi</div>
       <div class="tab" data-p="p2">Hôm nay</div>
@@ -329,17 +345,22 @@ function drawRooms(){
 /* ---------- bảng đơn ---------- */
 function cardHtml(o){
   var svOnly = o.items.every(function(i){ return i.type==='SV'; });
+  var coDr = o.items.some(function(i){ return i.type==='DR'; });
+  var coSv = o.items.some(function(i){ return i.type==='SV'; });
+  var tag = (coDr && coSv) ? 'Nước + dịch vụ' : (svOnly ? 'Dịch vụ' : 'Nước');
   var cls = 'card' + (svOnly?' sv':'') + (o.nghiNgo?' grey':'');
   var its = o.items.map(function(i){
     return esc(i.label) + (i.type==='DR' && i.qty>1 ? ' <b>×'+i.qty+'</b>' : '');
   }).join('<br>');
   var h = '<div class="'+cls+'">'
+    + '<div class="oid">#'+esc(o.id.slice(-6)).toUpperCase()+'</div>'
     + '<div class="hd"><div class="rn">'+esc(o.roomName)+'</div>'
+    + '<span class="tag">'+tag+'</span>'
     + '<div class="ago '+agoCls(o.time)+'">'+agoTx(o.time)+'</div></div>'
     + '<div class="it">'+its+'</div>';
-  if(o.note) h += '<div class="nt">“'+esc(o.note)+'”</div>';
+  if(o.note) h += '<div class="nt">'+esc(o.note)+'</div>';
   h += '<div class="mt">'+hhmm(o.time)+' · '+(o.source==='TABLET'?'máy tính bảng':'điện thoại khách')
-     + (o.nghiNgo ? ' · <b style="color:#ff9f43">'+esc(o.lyDo)+'</b>' : '') + '</div>';
+     + (o.nghiNgo ? ' · <b style="color:var(--warn)">'+esc(o.lyDo)+'</b>' : '') + '</div>';
 
   if(o.status==='MOI'){
     h += '<div class="ac"><button class="a1" onclick="act(\''+o.id+'\',\'nhan\')">Tiếp nhận</button>'
