@@ -335,7 +335,8 @@ function send(){
     $('ovSent').style.display = 'flex';
     ST.cart = {}; $('note').value = ''; render();
     startPoll();
-  }).catch(function(){
+  }).catch(function(err){
+    console.error('BMB gửi đơn lỗi:', err);
     $('btnSend').disabled = false;
     alert('Mất kết nối mạng. Vui lòng thử lại hoặc báo nhân viên.');
   });
