@@ -6,82 +6,132 @@
 <meta name="robots" content="noindex, nofollow">
 <title>BMB — Quầy phục vụ</title>
 <style>
+:root{
+  --bg:#16131f; --panel:#221e30; --panel-2:#2c2740; --line:#3a3350;
+  --ink:#f7f4fb; --ink-dim:#b9aecb; --ink-faint:#7d7295;
+  --brand:#ff2e76; --brand-ink:#ffd7e6;
+  --ok:#33d690; --ok-bg:#12301f;
+  --warn:#ffb020; --warn-bg:#3a2a0e;
+  --bad:#ff5d5d; --bad-bg:#3a1620;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#0e0e16;color:#eef;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-.top{display:flex;align-items:center;gap:14px;padding:10px 16px;background:#15151f;border-bottom:1px solid #2a2a3c;position:sticky;top:0;z-index:30}
-.top b{color:#ff5c8a;letter-spacing:.5px}
-.tabs{display:flex;gap:6px;margin-left:14px}
-.tab{padding:7px 14px;border-radius:9px;background:#1e1e2c;color:#9a9ab0;cursor:pointer;font-size:13px;font-weight:600}
-.tab.on{background:#ff5c8a;color:#fff}
-.who{margin-left:auto;font-size:13px;color:#7a7a92}
-.who button{background:#242436;color:#9a9ab0;border:0;border-radius:8px;padding:7px 12px;cursor:pointer;margin-left:8px}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+button,input{font-family:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
-.pg{display:none;padding:16px}
+.top{display:flex;align-items:flex-end;gap:22px;padding:14px 20px 0;
+  background:var(--panel-2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.brand-mark{display:flex;align-items:center;font-size:14px;font-weight:800;letter-spacing:.3px;padding-bottom:13px;white-space:nowrap}
+.brand-mark i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--brand);margin-right:9px}
+.tabs{display:flex;gap:2px;margin-left:6px}
+.tab{padding:11px 15px 12px;color:var(--ink-faint);cursor:pointer;font-size:14px;font-weight:600;
+  border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--ink-dim)}
+.tab.on{color:var(--ink);border-bottom-color:var(--brand)}
+.who{margin-left:auto;padding-bottom:11px;font-size:13px;color:var(--ink-faint);display:flex;align-items:center;gap:10px;white-space:nowrap}
+.who button{background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:9px;padding:8px 14px;cursor:pointer;font-weight:600}
+.who button:hover{border-color:var(--brand);color:var(--ink)}
+
+.pg{display:none;padding:20px;max-width:1360px;margin:0 auto}
 .pg.on{display:block}
 
 /* ---- đăng nhập ---- */
-#login{max-width:340px;margin:12vh auto;background:#15151f;border:1px solid #2a2a3c;border-radius:18px;padding:28px}
-#login h2{margin:0 0 18px;font-size:18px}
-#login input{width:100%;background:#0c0c14;border:1px solid #2a2a3c;color:#fff;border-radius:11px;padding:13px;margin-bottom:11px;font-size:15px}
-#login button{width:100%;background:#ff5c8a;color:#fff;border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
-#lgMsg{color:#ff7b7b;font-size:13px;min-height:18px;margin-top:8px}
+#login{max-width:380px;margin:13vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:34px 30px 28px}
+.lg-brand{display:flex;align-items:center;font-size:13px;font-weight:800;letter-spacing:.3px;color:var(--ink-dim);margin-bottom:20px}
+.lg-brand i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--brand);margin-right:8px}
+#login h2{margin:0 0 6px;font-size:21px;font-weight:800}
+#login .sub{margin:0 0 22px;font-size:13.5px;color:var(--ink-faint);line-height:1.5}
+.fld{display:block;margin-bottom:14px}
+.fld span{display:block;font-size:12px;font-weight:600;color:var(--ink-faint);margin-bottom:6px}
+.fld input{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px 14px;font-size:15px}
+.fld input:focus{border-color:var(--brand)}
+#login button{width:100%;background:var(--brand);color:#fff;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
+#login button:hover{filter:brightness(1.07)}
+#lgMsg{color:var(--bad);font-size:13px;min-height:20px;margin-top:12px;line-height:1.5}
 
-/* ---- lưới phòng ---- */
-.rooms{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-.rm{width:78px;height:60px;border-radius:12px;background:#1a1a26;border:1px solid #2a2a3c;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:#6d6d85}
-.rm b{font-size:17px;color:#8a8aa3}
-.rm.open{background:#123524;border-color:#2ecc71}
-.rm.open b{color:#5ef0a0}
-.rm.open span{color:#43b877}
-.rm.long{border-color:#ff9f43}
+/* ---- lưới phòng: bảng vật lý, hình khối riêng biệt với thẻ đơn ---- */
+.sect-lbl{font-size:13px;font-weight:700;color:var(--ink-dim);margin:2px 0 10px}
+.rooms{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.rm{width:74px;height:62px;border-radius:10px;background:var(--panel);border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  font-size:10.5px;color:var(--ink-faint);gap:2px}
+.rm:active{transform:scale(.96)}
+.rm b{font-size:19px;font-weight:800;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.rm.open{background:var(--ok);border-color:var(--ok)}
+.rm.open b,.rm.open span{color:#06301d}
+.rm.open span{opacity:.8}
+.rm.long{background:var(--warn);border-color:var(--warn)}
+.rm.long b,.rm.long span{color:#3a2506}
 
-/* ---- kanban ---- */
-.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+/* ---- hàng đợi ---- */
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
 @media(max-width:900px){.cols{grid-template-columns:1fr}}
-.col{background:#13131d;border:1px solid #242434;border-radius:14px;padding:10px;min-height:120px}
-.col h3{margin:2px 0 10px;font-size:12px;letter-spacing:1.2px;color:#7a7a92}
-.card{background:#1b1b28;border:1px solid #2c2c40;border-left:4px solid #ff5c8a;border-radius:11px;padding:11px 12px;margin-bottom:9px}
-.card.sv{border-left-color:#ffb020}
-.card.grey{opacity:.5;border-left-color:#555}
-.card .hd{display:flex;align-items:center;gap:9px}
-.card .rn{font-size:21px;font-weight:800}
-.card .ago{margin-left:auto;font-size:12px;color:#7a7a92}
-.card .ago.w{color:#ffb020}.card .ago.d{color:#ff5c5c;font-weight:700}
-.card .it{margin:7px 0 0;font-size:15px;line-height:1.45}
-.card .nt{margin-top:5px;font-size:13px;color:#9a9ab0;font-style:italic}
-.card .mt{margin-top:5px;font-size:11px;color:#5a5a70}
-.card .ac{display:flex;gap:7px;margin-top:10px}
-.card .ac button{flex:1;border:0;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer}
-.a1{background:#ff5c8a;color:#fff}.a2{background:#2ecc71;color:#08281a}.a3{background:#2a2a3c;color:#9a9ab0}
-.pos{margin-top:8px;background:#3a2a12;border:1px solid #ff9f43;color:#ffc684;border-radius:8px;padding:7px 9px;font-size:12px;display:flex;align-items:center;gap:8px}
-.pos button{margin-left:auto;background:#ff9f43;color:#2a1a06;border:0;border-radius:7px;padding:5px 10px;font-weight:700;cursor:pointer;font-size:12px}
-.empty{color:#4a4a60;font-size:13px;text-align:center;padding:22px 0}
+.col h3{display:flex;align-items:center;margin:0 0 12px;font-size:15px;font-weight:700;color:var(--ink)}
+.col h3 .dot{width:8px;height:8px;border-radius:50%;margin-right:9px;background:var(--ink-faint)}
+.col.c-moi h3 .dot{background:var(--ink-faint)}
+.col.c-nhan h3 .dot{background:var(--ok)}
+.col.c-nghi h3 .dot{background:var(--bad)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--brand);
+  border-radius:14px;padding:14px 14px 12px;margin-bottom:10px}
+.card.sv{border-left-color:var(--warn)}
+.card.grey{opacity:.6;border-left-color:var(--ink-faint);background:var(--bg)}
+.card .hd{display:flex;align-items:baseline;gap:10px}
+.card .rn{font-size:27px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+.card .ago{margin-left:auto;font-size:13px;font-weight:700;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.card .ago.w{color:var(--warn)}
+.card .ago.d{color:var(--bad)}
+.card .it{margin:9px 0 0;font-size:15.5px;line-height:1.5;color:var(--ink-dim)}
+.card .nt{margin-top:6px;font-size:13px;color:var(--ink-faint);font-style:italic}
+.card .mt{margin-top:6px;font-size:11.5px;color:var(--ink-faint)}
+.card .ac{display:flex;gap:8px;margin-top:11px}
+.card .ac button{flex:1;border:0;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer}
+.a1{background:var(--brand);color:#fff}
+.a2{background:var(--ok);color:#06301d}
+.a3{background:transparent;color:var(--ink-dim);border:1px solid var(--line)}
+.a3:hover{border-color:var(--ink-faint)}
+.pos{margin-top:9px;background:var(--warn-bg);border:1px solid var(--warn);color:#ffd699;border-radius:9px;padding:8px 10px;font-size:12.5px;display:flex;align-items:center;gap:8px}
+.pos button{margin-left:auto;background:var(--warn);color:#2a1a06;border:0;border-radius:7px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:12px}
+.empty{color:var(--ink-faint);font-size:13.5px;text-align:center;padding:28px 0}
 
 /* ---- bảng ---- */
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:9px 10px;border-bottom:1px solid #22222f;text-align:left}
-th{color:#7a7a92;font-size:11px;letter-spacing:1px}
-.mut{color:#6d6d85}
-.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
-.p-ok{background:#123524;color:#5ef0a0}.p-w{background:#3a2a12;color:#ffc684}.p-n{background:#2a2a3c;color:#9a9ab0}
-.hint{background:#13131d;border:1px solid #242434;border-radius:12px;padding:14px;font-size:13px;color:#9a9ab0;line-height:1.65;margin-bottom:16px}
-.hint b{color:#eef}
-button.mini{background:#242436;color:#c8c8d8;border:0;border-radius:9px;padding:9px 14px;font-size:13px;cursor:pointer;margin-right:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--ink-faint);font-weight:600;font-size:12.5px}
+td{color:var(--ink-dim)}
+td b{color:var(--ink)}
+.mut{color:var(--ink-faint)}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700}
+.p-ok{background:var(--ok-bg);color:var(--ok)}
+.p-w{background:var(--warn-bg);color:var(--warn)}
+.p-n{background:var(--panel-2);color:var(--ink-faint)}
+.hint{background:var(--panel);border-left:3px solid var(--brand);border-radius:8px;
+  padding:14px 16px;font-size:13.5px;color:var(--ink-dim);line-height:1.65;margin-bottom:18px}
+.hint b{color:var(--ink)}
+button.mini{background:transparent;border:1px solid var(--line);color:var(--ink-dim);
+  border-radius:10px;padding:10px 16px;font-size:13.5px;cursor:pointer;margin-right:10px;font-weight:600}
+button.mini:hover{border-color:var(--brand);color:var(--ink)}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 <div id="login">
-  <h2>Quầy phục vụ — Đăng nhập</h2>
-  <input id="lgU" placeholder="Tài khoản chi nhánh" autocomplete="username">
-  <input id="lgP" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+  <div class="lg-brand"><i></i>BOOM MUSIC BOX</div>
+  <h2>Quầy phục vụ</h2>
+  <p class="sub">Đăng nhập để xem hàng đợi yêu cầu của chi nhánh.</p>
+  <div class="fld"><span>Tài khoản chi nhánh</span><input id="lgU" autocomplete="username"></div>
+  <div class="fld"><span>Mật khẩu</span><input id="lgP" type="password" autocomplete="current-password"></div>
   <button id="lgBtn">Đăng nhập</button>
   <div id="lgMsg"></div>
 </div>
 
 <div id="app" style="display:none">
   <div class="top">
-    <b>BOOM MUSIC BOX</b>
+    <div class="brand-mark"><i></i>BOOM MUSIC BOX</div>
     <div class="tabs">
       <div class="tab on" data-p="p1">Hàng đợi</div>
       <div class="tab" data-p="p2">Hôm nay</div>
@@ -92,11 +142,12 @@ button.mini{background:#242436;color:#c8c8d8;border:0;border-radius:9px;padding:
   </div>
 
   <div class="pg on" id="p1">
+    <div class="sect-lbl">Phòng</div>
     <div class="rooms" id="rooms"></div>
     <div class="cols">
-      <div class="col"><h3>MỚI</h3><div id="cMoi"></div></div>
-      <div class="col"><h3>ĐANG PHỤC VỤ</h3><div id="cNhan"></div></div>
-      <div class="col"><h3>ĐƠN NGHI NGỜ</h3><div id="cNghi"></div></div>
+      <div class="col c-moi"><h3><span class="dot"></span>Mới</h3><div id="cMoi"></div></div>
+      <div class="col c-nhan"><h3><span class="dot"></span>Đang phục vụ</h3><div id="cNhan"></div></div>
+      <div class="col c-nghi"><h3><span class="dot"></span>Đơn nghi ngờ</h3><div id="cNghi"></div></div>
     </div>
   </div>
 
