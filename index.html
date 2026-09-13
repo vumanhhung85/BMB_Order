@@ -469,6 +469,7 @@ function pinOk(){
   if(ST.pinMode==='pin'){
     if(v !== CFG.PIN){ $('pinHint').textContent = 'Mã nhân viên không đúng.'; $('pinInp').value=''; return; }
     ST.pinMode = 'scan';
+    showCodeStep('Đang thử mở camera…');
     startCam();
   }else if(ST.pinMode==='scan'){
     if(!/^\d{4}$/.test(v)){ $('pinHint').textContent = 'Nhập đúng 4 chữ số in dưới mã QR.'; return; }
@@ -494,7 +495,7 @@ function startCam(){
   }
   $('pinTitle').textContent = 'Quét mã QR trên bàn';
   $('pinDesc').textContent  = 'Hướng camera vào mã QR dán trên bàn của phòng này.';
-  showCodeStep('Không quét được? Nhập 4 số in dưới mã QR rồi bấm Xác nhận.');
+  $('pinHint').textContent  = 'Không quét được? Xoá nội dung ở trên rồi gõ 4 số in dưới mã QR.';
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
   .then(function(s){
     ST.stream = s;
@@ -560,7 +561,7 @@ function touch(){
   $('btnSend').addEventListener('click', send);
   $('btnClear').addEventListener('click', function(){ ST.cart={}; $('note').value=''; render(); touch(); });
   $('btnBack').addEventListener('click', closeSent);
-  $('btnInit').addEventListener('click', function(){ openPin('pin'); });
+  $('btnInit').addEventListener('click', function(){ $('ovInit').style.display = 'none'; openPin('pin'); });
   $('btnPinOk').addEventListener('click', pinOk);
   $('btnPinCancel').addEventListener('click', closePin);
   $('pinInp').addEventListener('keydown', function(e){ if(e.key==='Enter') pinOk(); });
