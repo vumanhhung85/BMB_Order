@@ -8,6 +8,11 @@
 <title>Boom Music Box — Gọi phục vụ</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="Logo_BoomBox.png" id="favicon">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gọi phục vụ">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -114,6 +119,18 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
 .hintline{font-size:12.5px;line-height:1.6;margin:12px 0 0!important;color:var(--warn)}
 .diag{font-size:10.5px;margin:10px 0 0!important;color:var(--txt-mute);letter-spacing:.2px}
 
+/* -- nut cai len man hinh chinh -- */
+.instbox{margin-top:14px;border-top:1px dashed var(--line-soft);padding-top:14px}
+.instbox .btn{width:100%;font-size:14px;padding:12px 16px}
+.instnote{font-size:11.5px;color:var(--txt-mute);line-height:1.6;margin:10px 0 0!important}
+
+/* -- thong bao chop nhoang -- */
+.toast{position:fixed;left:14px;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:70;
+  background:rgba(20,6,31,.95);border:1px solid var(--line-soft);border-radius:14px;padding:12px 16px;
+  font-size:13.5px;color:var(--txt-dim);text-align:center;box-shadow:var(--shadow);
+  opacity:0;transform:translateY(14px);pointer-events:none;transition:.22s}
+.toast.on{opacity:1;transform:translateY(0)}
+
 .ok{font-size:52px;margin-bottom:6px}
 .st{font-size:14.5px;color:var(--txt-mute);margin-top:8px;min-height:22px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:5px;background:var(--warn);margin-right:7px}
@@ -204,6 +221,22 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
     </div>
     <p class="hintline" id="pinHint"></p>
     <p class="diag" id="pinDiag"></p>
+    <div class="instbox">
+      <button class="btn btn-ghost" id="btnInstallB" style="display:none">📲 Cài lên màn hình chính</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lớp phủ: đổi phòng cho tablet (chỉ máy đã được gán làm tablet của quán) -->
+<div class="ov" id="ovSwap">
+  <div class="card">
+    <div class="ok">🔄</div>
+    <h3>Đổi phòng cho máy này?</h3>
+    <p>Máy đang gán cho <b id="swapRoom" style="color:var(--yellow)">--</b>. Mang máy sang phòng khác thì quét mã QR trên bàn phòng mới (hoặc nhập mã 4 số).</p>
+    <div class="row">
+      <button class="btn btn-ghost" id="btnSwapNo">Không, giữ nguyên</button>
+      <button class="btn btn-y" id="btnSwapYes">Quét đổi phòng</button>
+    </div>
   </div>
 </div>
 
@@ -214,8 +247,14 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
     <h3>Máy chưa được gán phòng</h3>
     <p>Nhân viên bấm nút bên dưới, rồi quét mã QR dán trên bàn của phòng này — hoặc nhập mã 4 số in dưới mã QR.</p>
     <div class="row"><button class="btn btn-y" id="btnInit" style="width:100%">Gán phòng</button></div>
+    <div class="instbox">
+      <button class="btn btn-ghost" id="btnInstallA" style="display:none">📲 Cài lên màn hình chính</button>
+      <p class="instnote" id="instNote">Không thấy nút? Mở menu ⋮ của Chrome → <b>Thêm vào Màn hình chính</b> / <b>Cài đặt ứng dụng</b>.</p>
+    </div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
@@ -233,6 +272,15 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
       thiếu thì tự tải từ CDN) → nếu vẫn không được thì vẫn thấy hình camera
       và nhập tay mã 4 số.
    4. Dòng chẩn đoán nhỏ dưới cùng cho biết HTTPS / camera / bộ quét đang dùng.
+
+   V2.1 — cài lên màn hình chính + đổi phòng nhanh:
+   5. PWA: có manifest + sw.js + bộ icon → Chrome cho "Thêm vào Màn hình chính".
+      Mở từ icon là chạy toàn màn hình, không thanh địa chỉ.
+   6. Bấm vào ô PHÒNG trên đầu → hỏi "Đổi phòng cho máy này?" → quét mã phòng mới.
+      Dùng khi tablet phòng 9 hư, lấy tablet phòng 10 đang trống đắp qua.
+   7. CHỈ máy đã được gán làm tablet của quán mới bấm đổi phòng được.
+      Điện thoại khách (vào bằng mã QR trên bàn) bị KHOÁ nút này — muốn đổi
+      phòng thì khách quét lại mã QR của phòng mới, đúng như lúc đầu.
    ============================================================ */
 var CFG = {
   API   : 'https://script.google.com/macros/s/AKfycbyBY956QqkNkY03_f-_hjUsXfECZRF_OIB1-OK1eSlrOvEshU5adr20iv7Ua_txNkk54w/exec',
@@ -460,6 +508,69 @@ function closeSent(){ stopPoll(); $('ovSent').style.display = 'none'; touch(); }
 
 /* ---------- nhận diện tablet quán vs điện thoại khách ---------- */
 function isTablet(){ return localStorage.getItem('bmb_tablet')==='1'; }
+
+/* ---------- thông báo chớp nhoáng ---------- */
+var toastTm = null;
+function toast(t){
+  var e = $('toast');
+  e.textContent = t;
+  e.className = 'toast on';
+  if(toastTm) clearTimeout(toastTm);
+  toastTm = setTimeout(function(){ e.className = 'toast'; }, 3400);
+}
+
+/* ============================================================
+   ============  BẤM Ô PHÒNG → HỎI ĐỔI PHÒNG  =================
+   Chỉ mở cho tablet của quán. Điện thoại khách bị khoá: khách muốn
+   đổi phòng thì quét lại mã QR dán trên bàn phòng mới.
+   ============================================================ */
+function tapRoom(){
+  if(!isTablet()){
+    toast('Quý khách vui lòng quét mã QR dán trên bàn của phòng mình.');
+    return;
+  }
+  if(!ST.token){ needRoom(); return; }
+  $('swapRoom').textContent = 'phòng ' + (ST.room || '--');
+  $('ovSwap').style.display = 'flex';
+}
+function swapNo(){ $('ovSwap').style.display = 'none'; touch(); }
+function swapYes(){ $('ovSwap').style.display = 'none'; askStaff(); }
+
+/* ============================================================
+   ==========  CÀI LÊN MÀN HÌNH CHÍNH (PWA)  ==================
+   ============================================================ */
+var INSTALL = null;
+function showInstall(on){
+  ['btnInstallA','btnInstallB'].forEach(function(id){
+    var b = $(id); if(b) b.style.display = on ? '' : 'none';
+  });
+}
+function doInstall(){
+  if(!INSTALL){
+    toast('Mở menu ⋮ của Chrome → Thêm vào Màn hình chính.');
+    return;
+  }
+  INSTALL.prompt();
+  INSTALL.userChoice.then(function(){ INSTALL = null; showInstall(false); }).catch(function(){});
+}
+function dangChayDangApp(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone === true;
+}
+
+function dangKySW(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('sw.js').catch(function(e){
+    console.warn('BMB: không đăng ký được service worker', e);
+  });
+  /* có bản mới → chỉ tải lại khi máy đang rảnh, không cắt ngang lúc khách đang gọi */
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if(Object.keys(ST.cart).length) return;
+    if($('ovSent').style.display==='flex' || $('ovPin').style.display==='flex') return;
+    if($('ovStaff').style.display==='flex' || $('ovSwap').style.display==='flex') return;
+    location.reload();
+  });
+}
 
 /* ============================================================
    ================  GÁN PHÒNG CHO TABLET  ====================
@@ -798,17 +909,31 @@ function touch(){
   $('btnCamRetry').addEventListener('click', function(){ camMsg('Đang mở camera…'); startCam(); });
   $('pinInp').addEventListener('keydown', function(e){ if(e.key==='Enter') pinOk(); });
 
+  $('btnSwapNo').addEventListener('click', swapNo);
+  $('btnSwapYes').addEventListener('click', swapYes);
+  $('btnInstallA').addEventListener('click', doInstall);
+  $('btnInstallB').addEventListener('click', doInstall);
+
   document.addEventListener('touchstart', touch, {passive:true});
   document.addEventListener('click', touch);
 
-  /* giữ 2 giây lên ô PHÒNG để đổi phòng cho tablet */
-  var hold = null;
+  /* bấm ô PHÒNG để đổi phòng (tablet), khách bấm chỉ thấy lời nhắc quét QR */
   var box = $('roomBox');
-  box.addEventListener('touchstart', function(){ hold = setTimeout(askStaff, 2000); }, {passive:true});
-  box.addEventListener('touchend',   function(){ if(hold) clearTimeout(hold); });
-  box.addEventListener('touchmove',  function(){ if(hold) clearTimeout(hold); }, {passive:true});
-  box.addEventListener('mousedown',  function(){ hold = setTimeout(askStaff, 2000); });
-  box.addEventListener('mouseup',    function(){ if(hold) clearTimeout(hold); });
+  box.addEventListener('click', tapRoom);
+  box.title = 'Bấm để đổi phòng (dành cho nhân viên)';
+
+  /* PWA: bắt lời mời cài đặt của Chrome */
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    INSTALL = e;
+    if(!dangChayDangApp()) showInstall(true);
+  });
+  window.addEventListener('appinstalled', function(){
+    INSTALL = null; showInstall(false);
+    toast('Đã cài lên màn hình chính. Lần sau mở bằng icon Gọi phục vụ.');
+  });
+  if(dangChayDangApp()){ $('instNote').style.display = 'none'; }
+  dangKySW();
 
   /* tắt camera khi rời trang / chuyển sang app khác — tránh treo camera */
   document.addEventListener('visibilitychange', function(){
