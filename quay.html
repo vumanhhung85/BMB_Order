@@ -58,25 +58,36 @@ button,input{font:inherit;color:inherit}
 .msg.bad{background:rgba(255,92,122,.12);border:1px solid rgba(255,92,122,.35);color:#FFAABB}
 .msg.warn{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.32);color:#FFD79A}
 
-/* ── header ── */
-header{display:flex;align-items:center;gap:14px;padding:14px 20px;position:sticky;top:0;z-index:30;
-  background:rgba(20,6,31,.75);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
-header img{height:38px}
-header .tt{line-height:1.2}
-header .tt b{font-family:'Baloo 2';font-weight:800;font-size:16px;display:block}
-header .tt span{font-size:12px;color:var(--txt-mute);display:block}
-.tabs{display:flex;gap:6px;margin-left:6px;overflow-x:auto}
+/* ── header: topbar (hàng 1) + tabs (hàng 2), TÁCH RIÊNG như admin.html —
+   nhét chung 1 hàng là lý do bị che trên điện thoại ── */
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+header{position:sticky;top:0;z-index:30;background:rgba(20,6,31,.75);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
+.topbar{display:flex;align-items:center;gap:14px;height:64px}
+.topbar img{height:34px;flex-shrink:0}
+.tt{line-height:1.2;min-width:0;overflow:hidden}
+.tt b{font-family:'Baloo 2';font-weight:800;font-size:16px;display:block;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt span{font-size:12px;color:var(--txt-mute);display:block;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
 .tab{padding:9px 17px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line-soft);
-  cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap;color:var(--txt-dim);transition:.18s}
+  cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap;color:var(--txt-dim);transition:.18s;flex-shrink:0}
 .tab:hover{color:var(--txt)}
 .tab.on{background:var(--yellow);color:#2B1400;border-color:var(--yellow);font-weight:700}
 .tab .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;
   background:var(--bad);color:#fff;font-size:11.5px;font-weight:700}
 .tab .n.zero{display:none}
 .tab.on .n{background:rgba(0,0,0,.22);color:#2B1400}
-.who{margin-left:auto;display:flex;align-items:center;gap:11px;font-size:13.5px;white-space:nowrap}
+.who{margin-left:auto;display:flex;align-items:center;gap:11px;font-size:13.5px;white-space:nowrap;flex-shrink:0}
 .badge{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;
   background:rgba(255,210,26,.14);color:var(--yellow);border:1px solid rgba(255,210,26,.3)}
+@media(max-width:640px){
+  .wrap{padding:0 12px}
+  .topbar{height:auto;padding:10px 0;flex-wrap:wrap;row-gap:8px}
+  .who{margin-left:0;order:3;width:100%;justify-content:space-between}
+}
 
 .pg{display:none;padding:22px 20px;max-width:1360px;margin:0 auto}
 .pg.on{display:block}
@@ -153,6 +164,18 @@ td b{color:var(--txt)}
   padding:12px 15px;margin-bottom:18px;border-left:2px solid var(--purple);line-height:1.65}
 .hint b{color:var(--txt)}
 
+/* ── tab Cài đặt: sửa menu gọi phục vụ ── */
+.mrow{display:flex;align-items:center;gap:10px;background:linear-gradient(160deg,rgba(52,25,90,.8),rgba(36,18,55,.8));
+  border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.mrow.an{opacity:.45}
+.mrow input.ic{width:46px;text-align:center;background:rgba(20,6,31,.5);border:1px solid var(--line-soft);
+  border-radius:8px;padding:8px 4px;font-size:16px}
+.mrow input.lb{flex:1;min-width:130px;background:rgba(20,6,31,.5);border:1px solid var(--line-soft);
+  border-radius:8px;padding:8px 10px;font-size:14px}
+.mrow select{background:rgba(20,6,31,.5);border:1px solid var(--line-soft);border-radius:8px;
+  padding:8px 10px;font-size:13px;color:var(--txt)}
+.mrow .code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--txt-mute);width:64px;flex-shrink:0}
+
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -172,15 +195,20 @@ td b{color:var(--txt)}
 
 <div id="app" style="display:none">
   <header>
-    <img src="Logo_BoomBox.png" alt="Boom">
-    <div class="tt"><b id="hTt">Quầy phục vụ</b><span>Gọi &amp; xử lý yêu cầu tại phòng</span></div>
-    <div class="tabs">
-      <div class="tab on" data-p="p1">📋 Hàng đợi<span class="n zero" id="nMoi"></span></div>
-      <div class="tab" data-p="p2">Hôm nay</div>
-      <div class="tab" data-p="p3">In mã QR</div>
-      <div class="tab" data-p="p4">Mạng</div>
+    <div class="wrap">
+      <div class="topbar">
+        <img src="Logo_BoomBox.png" alt="Boom">
+        <div class="tt"><b id="hTt">Quầy phục vụ</b><span>Gọi &amp; xử lý yêu cầu tại phòng</span></div>
+        <div class="who"><span class="badge" id="whoTx"></span><button class="btn btn-ghost btn-sm" id="btnOut">Đăng xuất</button></div>
+      </div>
+      <div class="tabs">
+        <div class="tab on" data-p="p1">📋 Hàng đợi<span class="n zero" id="nMoi"></span></div>
+        <div class="tab" data-p="p2">Hôm nay</div>
+        <div class="tab" data-p="p3">In mã QR</div>
+        <div class="tab" data-p="p4">Mạng</div>
+        <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">⚙️ Cài đặt</div>
+      </div>
     </div>
-    <div class="who"><span class="badge" id="whoTx"></span><button class="btn btn-ghost btn-sm" id="btnOut">Đăng xuất</button></div>
   </header>
 
   <div class="pg on" id="p1">
@@ -221,6 +249,20 @@ td b{color:var(--txt)}
     </div>
     <div class="tblwrap"><table><thead><tr><th>IP</th><th>Số lần</th><th>Thấy lần đầu</th><th>Thấy gần nhất</th><th>Trạng thái</th></tr></thead><tbody id="tbIp"></tbody></table></div>
   </div>
+
+  <div class="pg" id="p5">
+    <div class="hint">
+      Sửa xong bấm <b>Lưu dòng</b> ở từng món. Món đang <b>ẩn</b> sẽ không hiện cho khách nhưng vẫn giữ lại trong đơn cũ.
+      Cột <b>loại</b>: Dịch vụ = khách chỉ bấm gọi (không chọn số lượng); Nước = khách chọn số lượng.
+    </div>
+    <div id="menuList"></div>
+    <div class="mrow" style="margin-top:16px;background:transparent;border-style:dashed">
+      <input class="ic" id="mNewIcon" placeholder="🆕" maxlength="4">
+      <input class="lb" id="mNewLabel" placeholder="Tên món/dịch vụ mới">
+      <select id="mNewType"><option value="DR">Nước (có số lượng)</option><option value="SV">Dịch vụ (chỉ gọi)</option></select>
+      <button class="btn btn-y btn-sm" id="btnMenuAdd">+ Thêm mới</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -236,7 +278,7 @@ var CFG = {
 };
 
 var $ = function(id){ return document.getElementById(id); };
-var S = { tok:'', branch:'', bname:'', rooms:[], orders:[], qr:[], ips:[], lastCount:0, audio:null, tm:null };
+var S = { tok:'', branch:'', bname:'', vaiTro:'', rooms:[], orders:[], qr:[], ips:[], lastCount:0, audio:null, tm:null };
 
 /* ---------- tiện ích ---------- */
 function sha256(s){
@@ -320,8 +362,8 @@ function login(){
     return api('auth.login', {user:u, pass:h});
   }).then(function(r){
     if(!r || !r.ok){ showLoginMsg((r && r.msg) || 'Sai tài khoản hoặc mật khẩu.'); return; }
-    S.tok = r.tok; S.branch = r.branchId; S.bname = r.branchName;
-    sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.tok, b:r.branchId, n:r.branchName}));
+    S.tok = r.tok; S.branch = r.branchId; S.bname = r.branchName; S.vaiTro = r.vaiTro || 'QUAY';
+    sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.tok, b:r.branchId, n:r.branchName, vt:S.vaiTro}));
     start();
   }).catch(function(err){
     console.error('BMB đăng nhập lỗi:', err);
@@ -334,6 +376,7 @@ function start(){
   $('app').style.display = 'block';
   $('hTt').textContent = S.bname;
   $('whoTx').textContent = S.branch;
+  if(S.vaiTro === 'ADMIN') $('tabCaiDat').style.display = '';
   if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
   loadStatic();
   tick();
@@ -469,6 +512,65 @@ function drawIp(){
   }).join('') || '<tr><td colspan="5" class="mut">Chưa ghi nhận. Cần ít nhất 1 đơn gửi từ tablet trong phòng.</td></tr>';
 }
 
+/* ---------- tab Cài đặt: sửa menu gọi phục vụ (chỉ admin) ---------- */
+function drawMenuAdmin(items){
+  $('menuList').innerHTML = items.map(function(it){
+    return '<div class="mrow'+(it.an?' an':'')+'" data-code="'+esc(it.code)+'">'
+      + '<span class="code">'+esc(it.code)+'</span>'
+      + '<input class="ic" value="'+esc(it.icon)+'" maxlength="4">'
+      + '<input class="lb" value="'+esc(it.label)+'" maxlength="60">'
+      + '<select><option value="DR"'+(it.type==='DR'?' selected':'')+'>Nước (có số lượng)</option>'
+      + '<option value="SV"'+(it.type==='SV'?' selected':'')+'>Dịch vụ (chỉ gọi)</option></select>'
+      + '<button class="btn btn-y btn-sm" onclick="menuSaveRow(this)">Lưu dòng</button>'
+      + '<button class="btn btn-ghost btn-sm" onclick="menuToggleRow(this,'+(it.an?'false':'true')+')">'+(it.an?'Hiện lại':'Ẩn')+'</button>'
+      + '</div>';
+  }).join('') || '<div class="empty">Chưa có món nào.</div>';
+}
+function menuRowData(el){
+  var row = el.closest('.mrow');
+  return {
+    code: row.getAttribute('data-code'),
+    icon: row.querySelector('.ic').value,
+    label: row.querySelector('.lb').value,
+    type: row.querySelector('select').value
+  };
+}
+function menuSaveRow(btn){
+  var d = menuRowData(btn);
+  if(!d.label.trim()){ alert('Nhập tên món.'); return; }
+  api('admin.menuSave', d).then(function(r){
+    if(!r || !r.ok){ alert('Lưu thất bại: '+((r&&r.msg)||'')); return; }
+    loadMenuAdmin();
+  });
+}
+function menuToggleRow(btn, anMoi){
+  var d = menuRowData(btn);
+  d.an = anMoi;
+  api('admin.menuSave', d).then(function(r){
+    if(!r || !r.ok){ alert('Thao tác thất bại.'); return; }
+    loadMenuAdmin();
+  });
+}
+function menuAddNew(){
+  var icon = $('mNewIcon').value.trim();
+  var label = $('mNewLabel').value.trim();
+  var type = $('mNewType').value;
+  if(!label){ alert('Nhập tên món/dịch vụ.'); return; }
+  var code = label.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,20) || ('M'+Date.now().toString(36));
+  api('admin.menuSave', {code:code, icon:icon, label:label, type:type}).then(function(r){
+    if(!r || !r.ok){ alert('Thêm thất bại: '+((r&&r.msg)||'')); return; }
+    $('mNewIcon').value=''; $('mNewLabel').value='';
+    loadMenuAdmin();
+  });
+}
+function loadMenuAdmin(){
+  $('menuList').innerHTML = '<div class="empty">Đang tải…</div>';
+  api('admin.menuList', {}).then(function(r){
+    if(!r || !r.ok){ $('menuList').innerHTML = '<div class="empty">Không tải được menu.</div>'; return; }
+    drawMenuAdmin(r.items);
+  });
+}
+
 /* ---------- hành động ---------- */
 function act(id, a){
   if(a==='huy' && !confirm('Huỷ yêu cầu này?')) return;
@@ -529,17 +631,20 @@ $('lgP').addEventListener('keydown', function(e){ if(e.key==='Enter') login(); }
 $('btnOut').addEventListener('click', logout);
 $('btnCsv').addEventListener('click', csv);
 $('btnPrint').addEventListener('click', printQr);
+$('btnMenuAdd').addEventListener('click', menuAddNew);
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
   t.addEventListener('click', function(){
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(x){ x.className='tab'; });
     Array.prototype.forEach.call(document.querySelectorAll('.pg'),  function(x){ x.className='pg'; });
     this.className = 'tab on';
-    $(this.getAttribute('data-p')).className = 'pg on';
+    var p = this.getAttribute('data-p');
+    $(p).className = 'pg on';
+    if(p==='p5') loadMenuAdmin();
   });
 });
 (function(){
   var s = sessionStorage.getItem('bmb_q');
-  if(s){ try{ var o = JSON.parse(s); S.tok=o.tok; S.branch=o.b; S.bname=o.n; start(); }catch(e){} }
+  if(s){ try{ var o = JSON.parse(s); S.tok=o.tok; S.branch=o.b; S.bname=o.n; S.vaiTro=o.vt||'QUAY'; start(); }catch(e){} }
 })();
 </script>
 </body>
