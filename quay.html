@@ -599,28 +599,56 @@ function csv(){
   a.click();
 }
 
-/* ---------- trang in QR ---------- */
+/* ---------- trang in QR ----------
+   V2: đổi chữ "BOOM MUSIC BOX" sang logo thật (Logo_BoomBox.png, cùng
+   thư mục với quay.html); số phòng làm hiệu ứng 3D nổi khối màu vàng-gold
+   thương hiệu; chữ chú thích và mã 4 số in đậm, màu tương phản cao hơn
+   hẳn — vì thẻ dán trong phòng hát, ánh sáng phòng tối, chữ mảnh màu xám
+   trước đây nhìn không rõ. */
 function printQr(){
   var w = window.open('', '_blank');
+  var logoUrl = new URL('Logo_BoomBox.png', location.href).href;
   var cards = S.qr.map(function(x){
-    return '<div class="c"><div class="bn">BOOM MUSIC BOX</div><div class="rn">'+esc(x.roomName)+'</div>'
+    var rn = String(x.roomName||'');
+    var rnPt = rn.length<=3 ? 32 : (rn.length<=6 ? 22 : 16);
+    return '<div class="c">'
+         + '<div class="bar"></div>'
+         + '<div class="inner">'
+         + '<img class="logo" src="'+esc(logoUrl)+'" alt="Boom Music Box" '
+         +   'onerror="this.outerHTML=\'&lt;div class=&quot;bn&quot;&gt;BOOM MUSIC BOX&lt;/div&gt;\'">'
+         + '<div class="rn" style="font-size:'+rnPt+'pt">'+esc(rn)+'</div>'
          + '<div class="q" data-u="'+esc(x.url)+'"></div>'
          + '<div class="cap">Quét để gọi nước &amp; báo sự cố</div>'
-         + '<div class="m4">'+esc(x.ma4)+'</div></div>';
+         + '<div class="m4wrap"><div class="m4lbl">Mã phòng</div><div class="m4">'+esc(x.ma4)+'</div></div>'
+         + '</div></div>';
   }).join('');
   w.document.write('<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>Mã QR phòng — '+esc(S.bname)+'</title>'
+    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">'
     + '<scr'+'ipt src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></scr'+'ipt>'
     + '<style>body{font-family:Arial,sans-serif;margin:0;padding:10mm;background:#fff;color:#000}'
     + '.g{display:grid;grid-template-columns:repeat(3,1fr);gap:8mm}'
-    + '.c{border:1.2mm solid #111;border-radius:5mm;padding:5mm;text-align:center;page-break-inside:avoid}'
-    + '.bn{font-size:9pt;letter-spacing:1.5px;color:#c2185b;font-weight:bold}'
-    + '.rn{font-size:30pt;font-weight:900;line-height:1;margin:2mm 0 3mm}'
-    + '.q img{width:38mm;height:38mm}.cap{font-size:8.5pt;margin-top:2mm;color:#333}'
-    + '.m4{margin-top:2mm;font-size:8pt;color:#999;letter-spacing:3px}'
+    + '.c{border:1.1mm solid #2A1140;border-radius:5mm;overflow:hidden;text-align:center;page-break-inside:avoid;background:#fff}'
+    + '.bar{height:3mm;background:linear-gradient(90deg,#8B2FBE,#D633C6,#F5A11B)}'
+    + '.inner{padding:4mm 5mm 5mm}'
+    + '.logo{height:11mm;max-width:80%;object-fit:contain;display:block;margin:1mm auto 2mm}'
+    + '.bn{font-size:10pt;letter-spacing:1.5px;color:#8B2FBE;font-weight:900;margin:2mm 0 2mm}'
+    + '.rn{font-family:"Baloo 2",Arial,sans-serif;font-weight:800;font-size:32pt;line-height:1;'
+    +   'margin:1mm 0 4mm;color:#FFD21A;-webkit-text-stroke:0.35pt #7A3E00;'
+    +   'text-shadow:0.5mm 0.5mm 0 #F5A11B,1mm 1mm 0 #D9860F,1.5mm 1.5mm 0 #B9740A,'
+    +   '2mm 2mm 0 #7A3E00,2mm 2mm 1mm rgba(0,0,0,.35)}'
+    + '.q img{width:38mm;height:38mm}'
+    + '.cap{font-size:11.5pt;font-weight:800;margin-top:3mm;color:#2A1140;line-height:1.3}'
+    + '.m4wrap{display:inline-block;margin-top:3.5mm;background:#FFF3D6;border:0.6mm solid #F5A11B;'
+    +   'border-radius:3mm;padding:1.8mm 6mm}'
+    + '.m4lbl{font-size:7.5pt;font-weight:800;letter-spacing:1.8px;color:#8A5A00}'
+    + '.m4{font-size:17pt;font-weight:900;letter-spacing:5px;color:#5A3900;margin-top:0.5mm}'
     + '@media print{@page{margin:8mm}}</style></head><body><div class="g">'+cards+'</div>'
     + '<scr'+'ipt>window.onload=function(){var ns=document.querySelectorAll(".q");'
     + 'for(var i=0;i<ns.length;i++){var q=qrcode(0,"M");q.addData(ns[i].getAttribute("data-u"));q.make();'
-    + 'ns[i].innerHTML=q.createImgTag(6,0);}setTimeout(function(){window.print();},700);};</scr'+'ipt>'
+    + 'ns[i].innerHTML=q.createImgTag(6,0);}'
+    + 'if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){setTimeout(function(){window.print();},250);});}'
+    + 'else{setTimeout(function(){window.print();},700);}};</scr'+'ipt>'
     + '</body></html>');
   w.document.close();
 }
