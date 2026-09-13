@@ -95,7 +95,8 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
 .ov{position:fixed;inset:0;background:rgba(10,4,20,.8);backdrop-filter:blur(3px);display:none;
   align-items:center;justify-content:center;z-index:60;padding:20px}
 .card{background:linear-gradient(165deg,var(--plum2),var(--plum));border:1px solid var(--line);
-  border-radius:24px;padding:28px 24px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow)}
+  border-radius:24px;padding:28px 24px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow);
+  max-height:calc(100vh - 40px);overflow-y:auto}
 .card h3{margin:0 0 8px;font-size:20px}
 .card p{margin:0 0 18px;color:var(--txt-mute);font-size:14px;line-height:1.55}
 .card .lbl-inp{display:block;font-size:12.5px;font-weight:700;color:var(--txt-dim);margin-bottom:8px}
@@ -103,7 +104,15 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
   border-radius:14px;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;margin-bottom:14px;font-weight:700}
 .card .row{display:flex;gap:10px}
 .card .row .btn{flex:1}
-#cam{width:100%;max-width:300px;border-radius:16px;background:#000;margin-bottom:14px;display:none}
+
+/* -- khung camera quet QR -- */
+#camBox{margin-bottom:14px}
+#cam{width:100%;max-width:300px;aspect-ratio:1/1;object-fit:cover;border-radius:16px;background:#000;
+  border:1px solid var(--line-soft);display:none;margin:0 auto}
+.cammsg{display:none;font-size:13px;line-height:1.6;color:var(--txt-dim);background:rgba(20,6,31,.55);
+  border:1px dashed var(--line-soft);border-radius:14px;padding:12px 14px}
+.hintline{font-size:12.5px;line-height:1.6;margin:12px 0 0!important;color:var(--warn)}
+.diag{font-size:10.5px;margin:10px 0 0!important;color:var(--txt-mute);letter-spacing:.2px}
 
 .ok{font-size:52px;margin-bottom:6px}
 .st{font-size:14.5px;color:var(--txt-mute);margin-top:8px;min-height:22px}
@@ -159,19 +168,42 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
   </div>
 </div>
 
-<!-- Lớp phủ: gán phòng (nhân viên) -->
+<!-- Lớp phủ: hỏi mã nhân viên (CHỈ hiện khi CFG.PIN có giá trị) -->
+<div class="ov" id="ovStaff">
+  <div class="card">
+    <h3>Nhập mã nhân viên</h3>
+    <p>Chỉ nhân viên mới gán phòng cho máy này.</p>
+    <input id="staffInp" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="••••">
+    <div class="row">
+      <button class="btn btn-ghost" id="btnStaffCancel">Huỷ</button>
+      <button class="btn btn-y" id="btnStaffOk">Xác nhận</button>
+    </div>
+    <p class="hintline" id="staffHint"></p>
+  </div>
+</div>
+
+<!-- Lớp phủ: gán phòng — camera + mã 4 số hiện CÙNG LÚC, không bắt qua bước nào -->
 <div class="ov" id="ovPin">
   <div class="card">
-    <h3 id="pinTitle">Nhập mã nhân viên</h3>
-    <p id="pinDesc">Chỉ nhân viên mới thực hiện thao tác này.</p>
-    <video id="cam" playsinline muted></video>
-    <span class="lbl-inp" id="pinLbl" style="display:none">Nhập mã 4 số in dưới mã QR của phòng:</span>
-    <input id="pinInp" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••">
+    <h3 id="pinTitle">Gán phòng cho máy này</h3>
+    <p id="pinDesc">Quét mã QR dán trên bàn, hoặc nhập mã 4 số in ngay dưới mã QR.</p>
+
+    <div id="camBox">
+      <video id="cam" playsinline muted autoplay></video>
+      <div class="cammsg" id="camMsg"></div>
+    </div>
+
+    <span class="lbl-inp">Mã 4 số của phòng</span>
+    <input id="pinInp" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000">
     <div class="row">
       <button class="btn btn-ghost" id="btnPinCancel">Huỷ</button>
-      <button class="btn btn-y" id="btnPinOk">Xác nhận</button>
+      <button class="btn btn-y" id="btnPinOk">Gán phòng</button>
     </div>
-    <p style="margin:14px 0 0;font-size:12px;color:var(--txt-mute)" id="pinHint"></p>
+    <div class="row" style="margin-top:10px">
+      <button class="btn btn-ghost" id="btnCamRetry" style="font-size:13.5px;padding:11px 16px">📷 Bật lại camera</button>
+    </div>
+    <p class="hintline" id="pinHint"></p>
+    <p class="diag" id="pinDiag"></p>
   </div>
 </div>
 
@@ -180,7 +212,7 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
   <div class="card">
     <div class="ok">📍</div>
     <h3>Máy chưa được gán phòng</h3>
-    <p>Nhân viên vui lòng bấm nút bên dưới, sau đó quét mã QR dán trên bàn của phòng này (hoặc nhập mã 4 số in dưới mã QR).</p>
+    <p>Nhân viên bấm nút bên dưới, rồi quét mã QR dán trên bàn của phòng này — hoặc nhập mã 4 số in dưới mã QR.</p>
     <div class="row"><button class="btn btn-y" id="btnInit" style="width:100%">Gán phòng</button></div>
   </div>
 </div>
@@ -190,14 +222,30 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
    BOOM MUSIC BOX — Trang gọi phục vụ (tablet trong phòng + QR khách)
    Phase 1: chỉ gọi, không tính tiền. Nước có số lượng, dịch vụ chỉ bật/tắt.
    Menu lấy động từ server (tab Cài đặt trên quay.html) — có fallback nếu lỗi mạng.
+
+   V2 — sửa phần GÁN PHÒNG CHO TABLET:
+   1. Bỏ bắt buộc "mã nhân viên": CFG.PIN để trống = không hỏi. Muốn khoá thì
+      điền số vào CFG.PIN, lúc đó mới hiện bước nhập mã.
+   2. Camera và ô nhập mã 4 số hiện CÙNG MỘT MÀN HÌNH — không còn cảnh phải
+      qua được bước 1 mới thấy camera.
+   3. Không còn phụ thuộc BarcodeDetector (nhiều tablet Android không có).
+      Thứ tự thử: BarcodeDetector → jsQR (file jsqr.min.js cùng thư mục, nếu
+      thiếu thì tự tải từ CDN) → nếu vẫn không được thì vẫn thấy hình camera
+      và nhập tay mã 4 số.
+   4. Dòng chẩn đoán nhỏ dưới cùng cho biết HTTPS / camera / bộ quét đang dùng.
    ============================================================ */
 var CFG = {
   API   : 'https://script.google.com/macros/s/AKfycbyBY956QqkNkY03_f-_hjUsXfECZRF_OIB1-OK1eSlrOvEshU5adr20iv7Ua_txNkk54w/exec',
-  PIN   : '2468',        /* mã nhân viên mở màn hình gán phòng — đổi trước khi chạy thật */
+  PIN   : '',            /* ĐỂ TRỐNG = không hỏi mã nhân viên (mặc định).
+                            Muốn khoá lại thì điền ví dụ '2468' — nhớ là mã này
+                            xem được bằng View Source, chỉ để chặn khách nghịch. */
   IDLE  : 60,            /* giây không thao tác thì tự dọn màn hình */
   POLL  : 5,             /* giây — chỉ chạy khi đang có đơn mở */
   POLLMAX: 180,          /* tối đa 180 giây rồi tự dừng. Lúc rảnh: 0 request */
-  QTY_MAX: 20            /* chặn trên cho số lượng 1 món */
+  QTY_MAX: 20,           /* chặn trên cho số lượng 1 món */
+  JSQR  : ['jsqr.min.js',
+           'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+           'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js']
 };
 
 /* Menu dự phòng — dùng khi chưa lấy được menu từ server (mất mạng, lỗi API).
@@ -221,9 +269,10 @@ var MENU = MENU_FALLBACK.slice();
 var $ = function(id){ return document.getElementById(id); };
 var ST = {
   token:'', room:'', branch:'', branchName:'',
-  cart:{}, orderId:'', pollN:0, pollTm:null, idleTm:null, ip:'',
-  pinMode:'', stream:null, scanTm:null
+  cart:{}, orderId:'', pollN:0, pollTm:null, idleTm:null, ip:''
 };
+/* trạng thái riêng của phần quét mã */
+var SCAN = { stream:null, tm:null, det:null, engine:'', canvas:null, ctx:null, busy:false, camOk:false };
 
 /* ---------- danh tính thiết bị ---------- */
 function deviceId(){
@@ -349,7 +398,8 @@ function render(){
 /* ---------- gửi đơn ---------- */
 function send(){
   var ks = Object.keys(ST.cart);
-  if(!ks.length || !ST.token) return;
+  if(!ks.length) return;
+  if(!ST.token){ alert('Máy chưa được gán phòng. Vui lòng báo nhân viên.'); needRoom(); return; }
   $('btnSend').disabled = true;
   var items = ks.map(function(c){
     return { code:c, label:labelOf(c), type:typeOf(c), qty:ST.cart[c] };
@@ -411,7 +461,9 @@ function closeSent(){ stopPoll(); $('ovSent').style.display = 'none'; touch(); }
 /* ---------- nhận diện tablet quán vs điện thoại khách ---------- */
 function isTablet(){ return localStorage.getItem('bmb_tablet')==='1'; }
 
-/* ---------- gán phòng ---------- */
+/* ============================================================
+   ================  GÁN PHÒNG CHO TABLET  ====================
+   ============================================================ */
 function needRoom(){ $('ovInit').style.display = 'flex'; }
 
 function applyRoom(r){
@@ -426,10 +478,7 @@ function applyRoom(r){
 
 function resolve(token, isSetup){
   return api('phong.resolve', {token: token}).then(function(r){
-    if(!r || !r.ok){
-      if(isSetup) alert('Mã không hợp lệ hoặc không thuộc hệ thống.');
-      return false;
-    }
+    if(!r || !r.ok) return false;
     applyRoom(r);
     if(isSetup){
       localStorage.setItem('bmb_token', token);
@@ -439,101 +488,277 @@ function resolve(token, isSetup){
   });
 }
 
-/* ---------- quét QR bằng camera, dự phòng nhập mã 4 số ---------- */
-function openPin(mode){
-  ST.pinMode = mode;
+/* ---------- bước 0 (tuỳ chọn): mã nhân viên ---------- */
+function askStaff(){
+  if(!CFG.PIN){ openAssign(); return; }        /* để trống thì vào thẳng */
+  $('staffInp').value = '';
+  $('staffHint').textContent = '';
+  $('ovInit').style.display = 'none';
+  $('ovStaff').style.display = 'flex';
+  setTimeout(function(){ $('staffInp').focus(); }, 100);
+}
+function staffOk(){
+  if($('staffInp').value.trim() !== String(CFG.PIN)){
+    $('staffHint').textContent = 'Mã nhân viên không đúng.';
+    $('staffInp').value = '';
+    return;
+  }
+  $('ovStaff').style.display = 'none';
+  openAssign();
+}
+function staffCancel(){
+  $('ovStaff').style.display = 'none';
+  if(!ST.token) needRoom();
+}
+
+/* ---------- màn hình gán phòng: camera + mã 4 số cùng lúc ---------- */
+function openAssign(){
+  $('ovInit').style.display = 'none';
   $('pinInp').value = '';
-  $('pinInp').setAttribute('maxlength','6');
-  $('pinInp').setAttribute('placeholder','••••');
-  $('pinLbl').style.display = 'none';
-  $('pinTitle').textContent = 'Nhập mã nhân viên';
-  $('pinDesc').textContent  = 'Chỉ nhân viên mới thực hiện thao tác này.';
-  $('pinHint').textContent  = '';
-  $('cam').style.display = 'none';
+  $('pinHint').textContent = '';
+  camMsg('');
   $('ovPin').style.display = 'flex';
-  setTimeout(function(){ $('pinInp').focus(); }, 100);
-}
-
-function showCodeStep(hintTxt){
-  $('pinTitle').textContent = 'Nhập mã 4 số của phòng';
-  $('pinDesc').textContent  = 'Mã này in ngay dưới mã QR dán trên bàn, hoặc xem tại quầy (tab "In mã QR").';
-  $('pinLbl').style.display = 'block';
-  $('pinInp').value=''; $('pinInp').setAttribute('maxlength','4');
-  $('pinInp').setAttribute('placeholder','0000');
-  $('pinHint').textContent = hintTxt || '';
-  setTimeout(function(){ $('pinInp').focus(); }, 50);
-}
-
-function pinOk(){
-  var v = $('pinInp').value.trim();
-  if(ST.pinMode==='pin'){
-    if(v !== CFG.PIN){ $('pinHint').textContent = 'Mã nhân viên không đúng.'; $('pinInp').value=''; return; }
-    ST.pinMode = 'scan';
-    showCodeStep('Đang thử mở camera…');
-    startCam();
-  }else if(ST.pinMode==='scan'){
-    if(!/^\d{4}$/.test(v)){ $('pinHint').textContent = 'Nhập đúng 4 chữ số in dưới mã QR.'; return; }
-    api('phong.resolve', {ma4: v}).then(function(r){
-      if(!r || !r.ok){ $('pinHint').textContent = 'Mã 4 số không đúng. Kiểm tra lại trên tờ QR hoặc hỏi quầy.'; $('pinInp').value=''; $('pinInp').focus(); return; }
-      localStorage.setItem('bmb_token', r.token);
-      localStorage.setItem('bmb_tablet','1');
-      applyRoom(r);
-      closePin();
-      flashRoom();
-    });
-  }
-}
-
-function startCam(){
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    showCodeStep('Máy không hỗ trợ camera trên trình duyệt này — nhập mã 4 số ở trên.');
-    return;
-  }
-  if(!('BarcodeDetector' in window)){
-    showCodeStep('Trình duyệt này chưa hỗ trợ quét mã (thường gặp trên máy tính) — nhập mã 4 số ở trên.');
-    return;
-  }
-  $('pinTitle').textContent = 'Quét mã QR trên bàn';
-  $('pinDesc').textContent  = 'Hướng camera vào mã QR dán trên bàn của phòng này.';
-  $('pinHint').textContent  = 'Không quét được? Xoá nội dung ở trên rồi gõ 4 số in dưới mã QR.';
-  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
-  .then(function(s){
-    ST.stream = s;
-    var v = $('cam');
-    v.srcObject = s; v.style.display = 'block'; v.play();
-    var det = new window.BarcodeDetector({formats:['qr_code']});
-    ST.scanTm = setInterval(function(){
-      det.detect(v).then(function(codes){
-        if(!codes || !codes.length) return;
-        var raw = codes[0].rawValue || '';
-        var tk = '';
-        try{
-          if(raw.indexOf('?')>=0){ tk = new URLSearchParams(raw.split('?')[1]).get('t') || ''; }
-        }catch(e){}
-        if(!tk) tk = raw.trim();
-        if(!tk) return;
-        clearInterval(ST.scanTm); ST.scanTm = null;
-        resolve(tk, true).then(function(ok){
-          if(ok){ closePin(); flashRoom(); }
-          else { startCam(); }
-        });
-      }).catch(function(){});
-    }, 400);
-  })
-  .catch(function(err){
-    if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')){
-      showCodeStep('Camera đang bị chặn. Vào Cài đặt → Ứng dụng → Chrome → Quyền → Camera để bật, hoặc nhập mã 4 số ở trên.');
-    }else{
-      showCodeStep('Không mở được camera. Nhập mã 4 số ở trên.');
-    }
-  });
+  startCam();
 }
 
 function closePin(){
-  if(ST.scanTm){ clearInterval(ST.scanTm); ST.scanTm = null; }
-  if(ST.stream){ ST.stream.getTracks().forEach(function(t){ t.stop(); }); ST.stream = null; }
-  $('cam').style.display = 'none';
+  stopCam();
   $('ovPin').style.display = 'none';
+  if(!ST.token) needRoom();          /* huỷ giữa chừng thì quay lại màn báo chưa gán */
+  touch();
+}
+
+/* nhập tay mã 4 số */
+function pinOk(){
+  var v = $('pinInp').value.trim();
+  if(!/^\d{4}$/.test(v)){
+    $('pinHint').textContent = 'Nhập đúng 4 chữ số in dưới mã QR trên bàn.';
+    return;
+  }
+  $('pinHint').textContent = 'Đang kiểm tra mã…';
+  api('phong.resolve', {ma4: v}).then(function(r){
+    if(!r || !r.ok){
+      $('pinHint').textContent = 'Mã 4 số không đúng. Kiểm tra lại trên tờ QR hoặc hỏi quầy.';
+      $('pinInp').value = ''; $('pinInp').focus();
+      return;
+    }
+    localStorage.setItem('bmb_token', r.token);
+    localStorage.setItem('bmb_tablet','1');
+    applyRoom(r);
+    closePin();
+    flashRoom();
+  }).catch(function(){
+    $('pinHint').textContent = 'Mất kết nối mạng. Kiểm tra wifi rồi bấm lại.';
+  });
+}
+
+/* ---------- camera ---------- */
+function camMsg(t){
+  var e = $('camMsg');
+  e.textContent = t || '';
+  e.style.display = t ? 'block' : 'none';
+}
+function camShow(on){ $('cam').style.display = on ? 'block' : 'none'; }
+
+function diag(extra){
+  var https = window.isSecureContext ? 'HTTPS ✓' : 'HTTPS ✗';
+  var cam   = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+                ? (SCAN.camOk ? 'Camera ✓' : 'Camera ✗') : 'Camera: trình duyệt không hỗ trợ';
+  var eng   = 'Quét: ' + (SCAN.engine || '—');
+  $('pinDiag').textContent = https + ' · ' + cam + ' · ' + eng + (extra ? ' · ' + extra : '');
+}
+
+function stopCam(){
+  if(SCAN.tm){ clearInterval(SCAN.tm); SCAN.tm = null; }
+  if(SCAN.stream){
+    SCAN.stream.getTracks().forEach(function(t){ try{ t.stop(); }catch(e){} });
+    SCAN.stream = null;
+  }
+  var v = $('cam');
+  try{ v.pause(); v.srcObject = null; }catch(e){}
+  SCAN.camOk = false;
+  camShow(false);
+}
+
+function startCam(){
+  stopCam();
+  SCAN.engine = '';
+
+  if(!window.isSecureContext){
+    camMsg('Trang đang không chạy trên HTTPS nên trình duyệt khoá camera. Mở đúng địa chỉ https://order.boommusicbox.vn — trong lúc chờ vẫn gán được bằng mã 4 số bên dưới.');
+    diag(); return;
+  }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    camMsg('Trình duyệt/ứng dụng đang mở trang này không cho phép dùng camera (thường gặp khi mở trong app khác). Mở bằng Chrome, hoặc gán bằng mã 4 số bên dưới.');
+    diag(); return;
+  }
+
+  camMsg('Đang mở camera…');
+  var tries = [
+    {video:{facingMode:{exact:'environment'}}, audio:false},   /* ưu tiên camera sau */
+    {video:{facingMode:{ideal:'environment'}}, audio:false},
+    {video:true, audio:false}                                   /* máy chỉ có 1 camera */
+  ];
+  (function next(i){
+    if(i >= tries.length){
+      camMsg('Không mở được camera. Gán bằng mã 4 số bên dưới.');
+      diag(); return;
+    }
+    navigator.mediaDevices.getUserMedia(tries[i]).then(onStream).catch(function(err){
+      var n = (err && err.name) || 'Lỗi';
+      if(n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError'){
+        camMsg('Camera đang bị chặn quyền. Vào Cài đặt → Ứng dụng → Chrome → Quyền → Camera để bật, rồi bấm “Bật lại camera”. Hoặc gán bằng mã 4 số bên dưới.');
+        diag(n); return;
+      }
+      if(n === 'NotReadableError' || n === 'TrackStartError'){
+        camMsg('Camera đang bị ứng dụng khác chiếm (app chọn bài). Đóng app đó rồi bấm “Bật lại camera”, hoặc gán bằng mã 4 số bên dưới.');
+        diag(n); return;
+      }
+      if(i + 1 < tries.length){ next(i + 1); return; }
+      camMsg('Không mở được camera (' + n + '). Gán bằng mã 4 số bên dưới.');
+      diag(n);
+    });
+  })(0);
+}
+
+function onStream(s){
+  SCAN.stream = s;
+  SCAN.camOk  = true;
+  var v = $('cam');
+  camShow(true);
+  camMsg('');
+  try{
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.muted = true;
+    v.srcObject = s;
+  }catch(e){
+    try{ v.src = URL.createObjectURL(s); }catch(e2){}
+  }
+  var p = v.play();
+  if(p && p.catch){
+    p.catch(function(){
+      camMsg('Bấm vào khung hình để bật camera.');
+      v.addEventListener('click', function(){ v.play(); camMsg(''); }, {once:true});
+    });
+  }
+  chonBoQuet();
+}
+
+/* chọn bộ giải mã QR: BarcodeDetector → jsQR → không có */
+function chonBoQuet(){
+  if('BarcodeDetector' in window && window.BarcodeDetector.getSupportedFormats){
+    window.BarcodeDetector.getSupportedFormats().then(function(f){
+      if(f && f.indexOf('qr_code') >= 0){
+        try{
+          SCAN.det = new window.BarcodeDetector({formats:['qr_code']});
+          SCAN.engine = 'BarcodeDetector';
+          diag(); loopBD(); return;
+        }catch(e){}
+      }
+      dungJsQR();
+    }).catch(dungJsQR);
+  }else{
+    dungJsQR();
+  }
+}
+
+function dungJsQR(){
+  napJsQR(function(ok){
+    if(!ok){
+      SCAN.engine = 'không có (nhập tay)';
+      camMsg('Máy này không quét mã tự động được. Vẫn thấy hình camera để canh, nhưng hãy gán bằng mã 4 số bên dưới.');
+      diag(); return;
+    }
+    SCAN.engine = 'jsQR';
+    diag(); loopJsQR();
+  });
+}
+
+/* tải jsQR: ưu tiên file trong repo, thiếu thì lấy CDN */
+function napJsQR(cb){
+  if(window.jsQR) return cb(true);
+  var srcs = CFG.JSQR;
+  (function go(i){
+    if(i >= srcs.length) return cb(false);
+    var s = document.createElement('script');
+    s.src = srcs[i];
+    s.onload  = function(){ window.jsQR ? cb(true) : go(i+1); };
+    s.onerror = function(){ go(i+1); };
+    document.head.appendChild(s);
+  })(0);
+}
+
+function loopBD(){
+  var v = $('cam'), loi = 0;
+  SCAN.tm = setInterval(function(){
+    if(SCAN.busy || !v.videoWidth) return;
+    SCAN.busy = true;
+    SCAN.det.detect(v).then(function(codes){
+      SCAN.busy = false; loi = 0;
+      if(codes && codes.length) batDuocMa(codes[0].rawValue || '');
+    }).catch(function(){
+      SCAN.busy = false;
+      if(++loi >= 5){                       /* máy báo có nhưng chạy không nổi */
+        clearInterval(SCAN.tm); SCAN.tm = null;
+        dungJsQR();
+      }
+    });
+  }, 350);
+}
+
+function loopJsQR(){
+  var v = $('cam');
+  if(!SCAN.canvas){
+    SCAN.canvas = document.createElement('canvas');
+    SCAN.ctx = SCAN.canvas.getContext('2d', {willReadFrequently:true});
+  }
+  SCAN.tm = setInterval(function(){
+    if(SCAN.busy) return;
+    var w = v.videoWidth, h = v.videoHeight;
+    if(!w || !h) return;
+    SCAN.busy = true;
+    try{
+      var sc = Math.min(1, 480 / Math.max(w,h));
+      var cw = Math.round(w*sc), ch = Math.round(h*sc);
+      SCAN.canvas.width = cw; SCAN.canvas.height = ch;
+      SCAN.ctx.drawImage(v, 0, 0, cw, ch);
+      var img = SCAN.ctx.getImageData(0, 0, cw, ch);
+      var r = window.jsQR(img.data, cw, ch, {inversionAttempts:'dontInvert'});
+      if(r && r.data) batDuocMa(r.data);
+    }catch(e){}
+    SCAN.busy = false;
+  }, 280);
+}
+
+/* lấy token từ nội dung mã QR (mã in ra là đường dẫn ...?t=xxxx) */
+function tachToken(raw){
+  raw = String(raw || '').trim();
+  if(!raw) return '';
+  var m = raw.match(/[?&]t=([^&#\s]+)/);
+  if(m) { try{ return decodeURIComponent(m[1]); }catch(e){ return m[1]; } }
+  if(/^[A-Za-z0-9_-]{6,40}$/.test(raw)) return raw;   /* trường hợp mã chỉ chứa token */
+  return '';
+}
+
+function batDuocMa(raw){
+  var tk = tachToken(raw);
+  if(!tk){ camMsg('Mã vừa quét không phải mã phòng của hệ thống.'); return; }
+  if(SCAN.tm){ clearInterval(SCAN.tm); SCAN.tm = null; }
+  SCAN.busy = false;
+  camMsg('Đang kiểm tra mã…');
+  resolve(tk, true).then(function(ok){
+    if(ok){ closePin(); flashRoom(); }
+    else { camMsg('Mã không thuộc hệ thống. Quét lại hoặc nhập mã 4 số bên dưới.'); quetTiep(); }
+  }).catch(function(){
+    camMsg('Mất kết nối mạng. Kiểm tra wifi rồi quét lại.');
+    quetTiep();
+  });
+}
+function quetTiep(){
+  if(SCAN.tm || !SCAN.camOk) return;
+  if(SCAN.engine === 'BarcodeDetector') loopBD();
+  else if(SCAN.engine === 'jsQR') loopJsQR();
 }
 
 function flashRoom(){
@@ -548,6 +773,7 @@ function touch(){
   ST.idleTm = setTimeout(function(){
     if($('ovSent').style.display==='flex') return;
     if($('ovPin').style.display==='flex') return;
+    if($('ovStaff').style.display==='flex') return;
     ST.cart = {}; $('note').value=''; render();
     window.scrollTo(0,0);
   }, CFG.IDLE*1000);
@@ -561,28 +787,43 @@ function touch(){
   $('btnSend').addEventListener('click', send);
   $('btnClear').addEventListener('click', function(){ ST.cart={}; $('note').value=''; render(); touch(); });
   $('btnBack').addEventListener('click', closeSent);
-  $('btnInit').addEventListener('click', function(){ $('ovInit').style.display = 'none'; openPin('pin'); });
+
+  $('btnInit').addEventListener('click', askStaff);
+  $('btnStaffOk').addEventListener('click', staffOk);
+  $('btnStaffCancel').addEventListener('click', staffCancel);
+  $('staffInp').addEventListener('keydown', function(e){ if(e.key==='Enter') staffOk(); });
+
   $('btnPinOk').addEventListener('click', pinOk);
   $('btnPinCancel').addEventListener('click', closePin);
+  $('btnCamRetry').addEventListener('click', function(){ camMsg('Đang mở camera…'); startCam(); });
   $('pinInp').addEventListener('keydown', function(e){ if(e.key==='Enter') pinOk(); });
+
   document.addEventListener('touchstart', touch, {passive:true});
   document.addEventListener('click', touch);
 
+  /* giữ 2 giây lên ô PHÒNG để đổi phòng cho tablet */
   var hold = null;
   var box = $('roomBox');
-  box.addEventListener('touchstart', function(){ hold = setTimeout(function(){ openPin('pin'); }, 2000); }, {passive:true});
+  box.addEventListener('touchstart', function(){ hold = setTimeout(askStaff, 2000); }, {passive:true});
   box.addEventListener('touchend',   function(){ if(hold) clearTimeout(hold); });
-  box.addEventListener('mousedown',  function(){ hold = setTimeout(function(){ openPin('pin'); }, 2000); });
+  box.addEventListener('touchmove',  function(){ if(hold) clearTimeout(hold); }, {passive:true});
+  box.addEventListener('mousedown',  function(){ hold = setTimeout(askStaff, 2000); });
   box.addEventListener('mouseup',    function(){ if(hold) clearTimeout(hold); });
+
+  /* tắt camera khi rời trang / chuyển sang app khác — tránh treo camera */
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden && SCAN.stream) stopCam();
+  });
+  window.addEventListener('pagehide', stopCam);
 
   var urlT = '';
   try{ urlT = new URLSearchParams(location.search).get('t') || ''; }catch(e){}
   var savedT = localStorage.getItem('bmb_token') || '';
 
   if(urlT){
-    resolve(urlT, false).then(function(ok){ if(!ok) needRoom(); });
+    resolve(urlT, false).then(function(ok){ if(!ok) needRoom(); }).catch(function(){ needRoom(); });
   }else if(savedT){
-    resolve(savedT, false).then(function(ok){ if(!ok) needRoom(); });
+    resolve(savedT, false).then(function(ok){ if(!ok) needRoom(); }).catch(function(){ needRoom(); });
   }else{
     needRoom();
   }
