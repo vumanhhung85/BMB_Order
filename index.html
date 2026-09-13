@@ -4,98 +4,119 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0b0b12">
+<meta name="theme-color" content="#1B0E2E">
 <title>Boom Music Box — Gọi phục vụ</title>
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="Logo_BoomBox.png" id="favicon">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;height:100%}
-body{
-  background:#0b0b12;color:#f2f2f7;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  overscroll-behavior:none;user-select:none;
+:root{
+  --yellow:#FFD21A;--gold:#F5A11B;--purple:#8B2FBE;--grape:#4B1272;--magenta:#D633C6;
+  --ink:#1B0E2E;--plum:#241237;--plum2:#34195A;
+  --line:rgba(255,210,26,.16);--line-soft:rgba(255,255,255,.12);
+  --txt:#F6EEFF;--txt-dim:#B5A2CC;--txt-mute:#8B7BA5;
+  --ok:#3DDC97;--warn:#FFB020;--bad:#FF5C7A;--info:#5BA9FF;
+  --shadow:0 18px 50px -18px rgba(0,0,0,.85);
 }
-.wrap{max-width:1100px;margin:0 auto;padding:14px 14px 28px}
-header{display:flex;align-items:center;gap:12px;padding:10px 2px 16px}
-.brand{font-weight:800;letter-spacing:.5px;font-size:15px;color:#ff5c8a}
-.room{
-  margin-left:auto;background:#1b1b27;border:1px solid #2e2e42;border-radius:12px;
-  padding:8px 16px;text-align:right;line-height:1.15;cursor:pointer
-}
-.room .lbl{font-size:10px;color:#8a8aa3;letter-spacing:1px}
-.room .val{font-size:22px;font-weight:800;color:#fff}
-.room.warn{border-color:#ff9f43;background:#3a2a12}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--ink);color:var(--txt);line-height:1.5;
+  background-image:radial-gradient(800px 420px at 8% -10%,rgba(139,47,190,.28),transparent 60%);
+  background-attachment:fixed;overscroll-behavior:none;user-select:none;-webkit-font-smoothing:antialiased}
+h2,h3{font-family:'Baloo 2',cursive;font-weight:800;line-height:1.15}
+button,input,textarea{font:inherit;color:inherit}
 
-h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
-
-.btn{
-  background:#1b1b27;border:1px solid #2e2e42;border-radius:16px;
-  padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
-  cursor:pointer;transition:transform .08s,border-color .15s,background .15s;
-}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:14px 22px;border-radius:999px;
+  border:0;cursor:pointer;font-weight:700;font-size:15.5px;transition:.18s;white-space:nowrap}
 .btn:active{transform:scale(.96)}
-.btn .ico{font-size:30px;line-height:1}
-.btn .tx{font-size:14px;font-weight:600;text-align:center;line-height:1.25}
-.btn.on{background:#2a1b2e;border-color:#ff5c8a}
-.btn.on .tx{color:#ff8fb0}
-.btn .qty{
-  position:absolute;top:6px;right:8px;background:#ff5c8a;color:#fff;
-  font-size:12px;font-weight:800;min-width:20px;height:20px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;padding:0 5px
-}
-.btn{position:relative}
-.sv .ico{font-size:26px}
+.btn-y{background:linear-gradient(170deg,var(--yellow),var(--gold));color:#2B1400;box-shadow:0 5px 0 #B9740A}
+.btn-y:active{transform:translateY(2px);box-shadow:0 2px 0 #B9740A}
+.btn-y:disabled{opacity:.5;pointer-events:none}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--line-soft);color:var(--txt-dim)}
 
-.bar{
-  position:fixed;left:0;right:0;bottom:0;background:#141420;border-top:1px solid #2e2e42;
-  padding:12px 14px calc(12px + env(safe-area-inset-bottom));
-  display:none;gap:10px;align-items:center;z-index:40
-}
-.bar .sum{flex:1;font-size:13px;color:#c8c8d8;line-height:1.3}
-.send{
-  background:#ff5c8a;color:#fff;border:0;border-radius:14px;padding:15px 26px;
-  font-size:16px;font-weight:800;cursor:pointer
-}
-.send:disabled{opacity:.5}
-.ghost{background:transparent;color:#8a8aa3;border:1px solid #2e2e42;border-radius:14px;padding:15px 16px;font-size:14px;cursor:pointer}
+.wrap{max-width:640px;margin:0 auto;padding:14px 14px 110px}
+header{display:flex;align-items:center;gap:10px;padding:8px 2px 18px}
+header img{height:36px}
+.brandtt{line-height:1.1}
+.brandtt b{font-family:'Baloo 2';font-size:15px;font-weight:800;display:block;letter-spacing:.2px}
+.brandtt span{font-size:10.5px;color:var(--txt-mute);letter-spacing:.5px}
+.room{margin-left:auto;background:var(--plum2);border:1px solid var(--line-soft);border-radius:14px;
+  padding:8px 16px;text-align:right;line-height:1.15;cursor:pointer}
+.room .lbl{font-size:10px;color:var(--txt-mute);letter-spacing:1px}
+.room .val{font-family:'Baloo 2';font-size:21px;font-weight:800;color:var(--txt)}
+.room.warn{border-color:var(--warn);background:rgba(255,176,32,.14)}
 
-.ov{position:fixed;inset:0;background:rgba(6,6,12,.94);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
-.card{background:#16161f;border:1px solid #2e2e42;border-radius:20px;padding:26px 22px;max-width:420px;width:100%;text-align:center}
+h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px;font-weight:700;font-family:'Be Vietnam Pro'}
+
+/* -- dich vu: luoi nut bat/tat -- */
+.svgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:480px){.svgrid{grid-template-columns:repeat(3,1fr)}}
+.svbtn{background:linear-gradient(160deg,rgba(52,25,90,.8),rgba(36,18,55,.8));border:1px solid var(--line-soft);
+  border-radius:16px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}
+.svbtn:active{transform:scale(.96)}
+.svbtn .ico{font-size:28px;line-height:1}
+.svbtn .tx{font-size:13.5px;font-weight:600;text-align:center;line-height:1.3}
+.svbtn.on{border-color:var(--yellow);background:linear-gradient(160deg,rgba(255,210,26,.2),rgba(245,161,27,.1))}
+.svbtn.on .tx{color:var(--yellow)}
+
+/* -- nuoc: moi dong co bo dem so luong rieng -- */
+.drow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:linear-gradient(160deg,rgba(52,25,90,.8),rgba(36,18,55,.8));border:1px solid var(--line-soft);
+  border-radius:14px;padding:11px 12px 11px 14px;margin-bottom:9px}
+.drow.on{border-color:rgba(255,210,26,.45)}
+.di{display:flex;align-items:center;gap:11px;min-width:0}
+.dic{font-size:23px;flex-shrink:0}
+.dtx{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qty{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.qty button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.06);color:var(--txt);font-size:19px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;line-height:1}
+.qty button:active{transform:scale(.88)}
+.qty button:disabled{opacity:.3;pointer-events:none}
+.qty .qn{width:26px;text-align:center;font-family:'Baloo 2';font-size:17px;font-weight:800;
+  font-variant-numeric:tabular-nums;color:var(--txt-dim)}
+.drow.on .qn{color:var(--yellow)}
+
+.note{margin-top:18px}
+.note textarea{width:100%;background:rgba(20,6,31,.5);border:1px solid var(--line-soft);color:var(--txt);
+  border-radius:14px;padding:12px 14px;font-size:15px;resize:none;height:72px}
+.note textarea:focus{outline:none;border-color:var(--yellow)}
+.tiny{font-size:11px;color:var(--txt-mute);text-align:center;margin-top:22px;line-height:1.7}
+.tiny b{color:var(--txt-dim)}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(20,6,31,.92);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line-soft);padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  display:none;gap:10px;align-items:center;z-index:40}
+.bar .sum{flex:1;font-size:13px;color:var(--txt-dim);line-height:1.3;min-width:0}
+.bar .btn-y{padding:15px 24px}
+
+/* -- lop phu modal -- */
+.ov{position:fixed;inset:0;background:rgba(10,4,20,.8);backdrop-filter:blur(3px);display:none;
+  align-items:center;justify-content:center;z-index:60;padding:20px}
+.card{background:linear-gradient(165deg,var(--plum2),var(--plum));border:1px solid var(--line);
+  border-radius:24px;padding:28px 24px;max-width:420px;width:100%;text-align:center;box-shadow:var(--shadow)}
 .card h3{margin:0 0 8px;font-size:20px}
-.card p{margin:0 0 18px;color:#9a9ab0;font-size:14px;line-height:1.5}
-.card input{
-  width:100%;background:#0f0f18;border:1px solid #2e2e42;color:#fff;border-radius:12px;
-  padding:14px;font-size:22px;text-align:center;letter-spacing:8px;margin-bottom:14px;
-  font-weight:700
-}
+.card p{margin:0 0 18px;color:var(--txt-mute);font-size:14px;line-height:1.55}
+.card .lbl-inp{display:block;font-size:12.5px;font-weight:700;color:var(--txt-dim);margin-bottom:8px}
+.card input{width:100%;background:rgba(20,6,31,.6);border:1px solid var(--line-soft);color:var(--txt);
+  border-radius:14px;padding:14px;font-size:24px;text-align:center;letter-spacing:8px;margin-bottom:14px;font-weight:700}
 .card .row{display:flex;gap:10px}
-.card button{flex:1;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
-.b1{background:#ff5c8a;color:#fff}
-.b2{background:#242436;color:#c8c8d8}
-#cam{width:100%;max-width:320px;border-radius:14px;background:#000;margin-bottom:14px;display:none}
+.card .row .btn{flex:1}
+#cam{width:100%;max-width:300px;border-radius:16px;background:#000;margin-bottom:14px;display:none}
 
-.ok{font-size:56px;margin-bottom:8px}
-.st{font-size:15px;color:#9a9ab0;margin-top:6px;min-height:22px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:5px;background:#ffb020;margin-right:7px}
-.dot.go{background:#2ecc71}
-
-.note{margin-top:14px}
-.note textarea{
-  width:100%;background:#0f0f18;border:1px solid #2e2e42;color:#fff;border-radius:12px;
-  padding:12px;font-size:15px;font-family:inherit;resize:none;height:76px
-}
-.tiny{font-size:11px;color:#55556a;text-align:center;margin-top:22px;line-height:1.6}
-.tiny b{color:#8a8aa3}
+.ok{font-size:52px;margin-bottom:6px}
+.st{font-size:14.5px;color:var(--txt-mute);margin-top:8px;min-height:22px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:5px;background:var(--warn);margin-right:7px}
+.dot.go{background:var(--ok)}
 </style>
 </head>
 <body>
 
 <div class="wrap" id="main">
   <header>
-    <div class="brand">BOOM MUSIC BOX</div>
+    <img src="Logo_BoomBox.png" alt="Boom Music Box">
+    <div class="brandtt"><b>BOOM MUSIC BOX</b><span>GỌI PHỤC VỤ</span></div>
     <div class="room" id="roomBox" title="Giữ 2 giây để đổi phòng">
       <div class="lbl">PHÒNG</div>
       <div class="val" id="roomVal">--</div>
@@ -103,10 +124,10 @@ h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-w
   </header>
 
   <h2>CẦN HỖ TRỢ</h2>
-  <div class="grid" id="gSv"></div>
+  <div class="svgrid" id="gSv"></div>
 
   <h2>GỌI NƯỚC</h2>
-  <div class="grid" id="gDr"></div>
+  <div id="gDr"></div>
 
   <div class="note">
     <textarea id="note" placeholder="Ghi chú thêm cho nhân viên (không bắt buộc)…"></textarea>
@@ -114,15 +135,15 @@ h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-w
 
   <div class="tiny">
     Nhân viên sẽ lên phòng trong ít phút.<br>
-    Số lượng và giá sẽ được nhân viên xác nhận trực tiếp với quý khách.<br>
+    Số lượng đã ghi rõ, giá sẽ được nhân viên xác nhận trực tiếp.<br>
     <b id="devTag"></b>
   </div>
 </div>
 
 <div class="bar" id="bar">
   <div class="sum" id="sum"></div>
-  <button class="ghost" id="btnClear">Xoá</button>
-  <button class="send" id="btnSend">Gửi yêu cầu</button>
+  <button class="btn btn-ghost" id="btnClear">Xoá</button>
+  <button class="btn btn-y" id="btnSend">Gửi yêu cầu</button>
 </div>
 
 <!-- Lớp phủ: xác nhận đã gửi -->
@@ -133,7 +154,7 @@ h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-w
     <p id="sentList"></p>
     <div class="st"><span class="dot" id="stDot"></span><span id="stTx">Đang chờ quầy tiếp nhận…</span></div>
     <div class="row" style="margin-top:18px">
-      <button class="b2" id="btnBack">Đóng</button>
+      <button class="btn btn-ghost" id="btnBack">Đóng</button>
     </div>
   </div>
 </div>
@@ -144,12 +165,13 @@ h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-w
     <h3 id="pinTitle">Nhập mã nhân viên</h3>
     <p id="pinDesc">Chỉ nhân viên mới thực hiện thao tác này.</p>
     <video id="cam" playsinline muted></video>
+    <span class="lbl-inp" id="pinLbl" style="display:none">Nhập mã 4 số in dưới mã QR của phòng:</span>
     <input id="pinInp" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••">
     <div class="row">
-      <button class="b2" id="btnPinCancel">Huỷ</button>
-      <button class="b1" id="btnPinOk">Xác nhận</button>
+      <button class="btn btn-ghost" id="btnPinCancel">Huỷ</button>
+      <button class="btn btn-y" id="btnPinOk">Xác nhận</button>
     </div>
-    <p style="margin:14px 0 0;font-size:12px" id="pinHint"></p>
+    <p style="margin:14px 0 0;font-size:12px;color:var(--txt-mute)" id="pinHint"></p>
   </div>
 </div>
 
@@ -158,41 +180,43 @@ h2{font-size:13px;color:#8a8aa3;letter-spacing:1.5px;margin:18px 2px 10px;font-w
   <div class="card">
     <div class="ok">📍</div>
     <h3>Máy chưa được gán phòng</h3>
-    <p>Nhân viên vui lòng bấm nút bên dưới, sau đó quét mã QR dán trên bàn của phòng này.</p>
-    <div class="row"><button class="b1" id="btnInit">Gán phòng</button></div>
+    <p>Nhân viên vui lòng bấm nút bên dưới, sau đó quét mã QR dán trên bàn của phòng này (hoặc nhập mã 4 số in dưới mã QR).</p>
+    <div class="row"><button class="btn btn-y" id="btnInit" style="width:100%">Gán phòng</button></div>
   </div>
 </div>
 
 <script>
 /* ============================================================
    BOOM MUSIC BOX — Trang gọi phục vụ (tablet trong phòng + QR khách)
-   Phase 1: chỉ gọi, không tính tiền, không hiện giá.
+   Phase 1: chỉ gọi, không tính tiền. Nước có số lượng, dịch vụ chỉ bật/tắt.
+   Menu lấy động từ server (tab Cài đặt trên quay.html) — có fallback nếu lỗi mạng.
    ============================================================ */
 var CFG = {
   API   : 'https://script.google.com/macros/s/AKfycbyBY956QqkNkY03_f-_hjUsXfECZRF_OIB1-OK1eSlrOvEshU5adr20iv7Ua_txNkk54w/exec',
   PIN   : '2468',        /* mã nhân viên mở màn hình gán phòng — đổi trước khi chạy thật */
   IDLE  : 60,            /* giây không thao tác thì tự dọn màn hình */
   POLL  : 5,             /* giây — chỉ chạy khi đang có đơn mở */
-  POLLMAX: 180           /* tối đa 180 giây rồi tự dừng. Lúc rảnh: 0 request */
+  POLLMAX: 180,          /* tối đa 180 giây rồi tự dừng. Lúc rảnh: 0 request */
+  QTY_MAX: 20            /* chặn trên cho số lượng 1 món */
 };
 
-/* --- Thực đơn phase 1: không giá, không số lượng bắt buộc --- */
-var MENU_SV = [
-  {code:'PIN',  ico:'🔋', tx:'Thay pin micro'},
-  {code:'MIC',  ico:'🎤', tx:'Micro rè / hú'},
-  {code:'LANH', ico:'❄️', tx:'Máy lạnh không mát'},
-  {code:'NET',  ico:'📶', tx:'Mạng lag / rớt'},
-  {code:'GIAY', ico:'🧻', tx:'Thêm khăn giấy'},
-  {code:'NV',   ico:'🙋', tx:'Gọi nhân viên'}
+/* Menu dự phòng — dùng khi chưa lấy được menu từ server (mất mạng, lỗi API).
+   Đồng bộ với seedMenuMacDinh() trong Code.gs. */
+var MENU_FALLBACK = [
+  {code:'PIN',  label:'Thay pin micro',      type:'SV', icon:'🔋'},
+  {code:'MIC',  label:'Micro rè / hú',       type:'SV', icon:'🎤'},
+  {code:'LANH', label:'Máy lạnh không mát',  type:'SV', icon:'❄️'},
+  {code:'NET',  label:'Mạng lag / rớt',      type:'SV', icon:'📶'},
+  {code:'BAI',  label:'Không chọn được bài', type:'SV', icon:'🎵'},
+  {code:'NV',   label:'Gọi nhân viên',       type:'SV', icon:'🙋'},
+  {code:'SUOI', label:'Nước suối',           type:'DR', icon:'💧'},
+  {code:'C2',   label:'Trà C2',              type:'DR', icon:'🍵'},
+  {code:'OLONG',label:'Ô Long',              type:'DR', icon:'🧋'},
+  {code:'BIA',  label:'Bia',                 type:'DR', icon:'🍺'},
+  {code:'NGOT', label:'Nước ngọt',           type:'DR', icon:'🥤'},
+  {code:'DA',   label:'Thêm đá',             type:'DR', icon:'🧊'}
 ];
-var MENU_DR = [
-  {code:'SUOI', ico:'💧', tx:'Nước suối'},
-  {code:'C2',   ico:'🍵', tx:'Trà C2'},
-  {code:'OLONG',ico:'🧋', tx:'Ô Long'},
-  {code:'BIA',  ico:'🍺', tx:'Bia'},
-  {code:'NGOT', ico:'🥤', tx:'Nước ngọt'},
-  {code:'DA',   ico:'🧊', tx:'Thêm đá'}
-];
+var MENU = MENU_FALLBACK.slice();
 
 var $ = function(id){ return document.getElementById(id); };
 var ST = {
@@ -211,10 +235,7 @@ function deviceId(){
   return d;
 }
 
-/* ---------- IP công cộng (chỉ để quan sát, hỏng thì bỏ qua) ----------
-   Apps Script không đọc được IP người gọi, nên phase 1 client tự khai.
-   Client tự khai thì giả được — vì vậy IP chỉ dùng để ĐÁNH DẤU nghi ngờ,
-   không dùng để chặn. Sang Cloudflare Worker sẽ lấy IP ở phía máy chủ. */
+/* ---------- IP công cộng (chỉ để quan sát, hỏng thì bỏ qua) ---------- */
 function pubIp(){
   var c = sessionStorage.getItem('bmb_ip');
   if(c !== null) { ST.ip = c; return; }
@@ -236,71 +257,90 @@ function api(action, data){
   }).then(function(r){ return r.json(); });
 }
 
+/* ---------- lấy menu động theo chi nhánh ---------- */
+function loadMenu(){
+  api('menu.get', {branchId: ST.branch}).then(function(r){
+    MENU = (r && r.ok && r.items && r.items.length) ? r.items : MENU_FALLBACK.slice();
+    drawMenu(); render();
+  }).catch(function(){
+    MENU = MENU_FALLBACK.slice();
+    drawMenu(); render();
+  });
+}
+
 /* ---------- dựng nút ---------- */
 function drawMenu(){
-  var s='';
-  MENU_SV.forEach(function(m){
-    s += '<div class="btn sv" data-c="'+m.code+'" data-t="SV"><div class="ico">'+m.ico+'</div><div class="tx">'+m.tx+'</div></div>';
-  });
-  $('gSv').innerHTML = s;
-  s='';
-  MENU_DR.forEach(function(m){
-    s += '<div class="btn" data-c="'+m.code+'" data-t="DR"><div class="ico">'+m.ico+'</div><div class="tx">'+m.tx+'</div></div>';
-  });
-  $('gDr').innerHTML = s;
+  var sv = MENU.filter(function(m){ return m.type==='SV'; });
+  var dr = MENU.filter(function(m){ return m.type==='DR'; });
 
-  var all = document.querySelectorAll('.btn');
-  for(var i=0;i<all.length;i++){
-    all[i].addEventListener('click', function(){ tap(this); });
-  }
+  $('gSv').innerHTML = sv.map(function(m){
+    return '<div class="svbtn" data-c="'+m.code+'"><div class="ico">'+m.icon+'</div><div class="tx">'+esc(m.label)+'</div></div>';
+  }).join('') || '<div class="tiny">Chưa có dịch vụ nào.</div>';
+
+  $('gDr').innerHTML = dr.map(function(m){
+    return '<div class="drow" data-c="'+m.code+'">'
+      + '<div class="di"><span class="dic">'+m.icon+'</span><span class="dtx">'+esc(m.label)+'</span></div>'
+      + '<div class="qty"><button class="qm" data-d="-1">–</button><span class="qn">0</span><button class="qp" data-d="1">+</button></div>'
+      + '</div>';
+  }).join('') || '<div class="tiny">Chưa có nước nào.</div>';
+
+  var svEls = document.querySelectorAll('.svbtn');
+  for(var i=0;i<svEls.length;i++){ svEls[i].addEventListener('click', tapSv); }
+  var qBtns = document.querySelectorAll('.qty button');
+  for(var j=0;j<qBtns.length;j++){ qBtns[j].addEventListener('click', tapQty); }
 }
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function labelOf(code){
-  var f = MENU_SV.concat(MENU_DR).filter(function(m){return m.code===code;});
-  return f.length ? f[0].tx : code;
+  var f = MENU.filter(function(m){ return m.code===code; });
+  return f.length ? f[0].label : code;
 }
 function typeOf(code){
-  return MENU_SV.filter(function(m){return m.code===code;}).length ? 'SV' : 'DR';
+  var f = MENU.filter(function(m){ return m.code===code; });
+  return f.length ? f[0].type : 'SV';
 }
 
-function tap(el){
+function tapSv(){
   touch();
-  var c = el.getAttribute('data-c');
-  var t = el.getAttribute('data-t');
-  if(t==='SV'){
-    /* dịch vụ: bật/tắt, không đếm số lượng */
-    if(ST.cart[c]){ delete ST.cart[c]; } else { ST.cart[c] = 1; }
-  }else{
-    /* nước: bấm nhiều lần tăng dần, quá 9 quay về 0 */
-    ST.cart[c] = (ST.cart[c]||0) + 1;
-    if(ST.cart[c] > 9) delete ST.cart[c];
-  }
+  var c = this.getAttribute('data-c');
+  if(ST.cart[c]) delete ST.cart[c]; else ST.cart[c] = 1;
+  render();
+}
+function tapQty(e){
+  touch();
+  var row = this.closest('.drow');
+  var c = row.getAttribute('data-c');
+  var d = Number(this.getAttribute('data-d'));
+  var n = (ST.cart[c]||0) + d;
+  if(n <= 0) delete ST.cart[c];
+  else ST.cart[c] = Math.min(n, CFG.QTY_MAX);
   render();
 }
 
 function render(){
-  var all = document.querySelectorAll('.btn');
-  for(var i=0;i<all.length;i++){
-    var el = all[i], c = el.getAttribute('data-c'), t = el.getAttribute('data-t');
-    var n = ST.cart[c] || 0;
-    var old = el.querySelector('.qty');
-    if(old) old.parentNode.removeChild(old);
-    if(n>0){
-      el.className = el.className.indexOf('on')<0 ? el.className+' on' : el.className;
-      if(t==='DR' && n>1){
-        var b = document.createElement('div'); b.className='qty'; b.textContent = n; el.appendChild(b);
-      }
-    }else{
-      el.className = el.className.replace(/\s*on\b/,'');
-    }
+  var svEls = document.querySelectorAll('.svbtn');
+  for(var i=0;i<svEls.length;i++){
+    var el = svEls[i], c = el.getAttribute('data-c');
+    el.className = 'svbtn' + (ST.cart[c] ? ' on' : '');
   }
+  var rows = document.querySelectorAll('.drow');
+  for(var j=0;j<rows.length;j++){
+    var r = rows[j], c2 = r.getAttribute('data-c'), n = ST.cart[c2]||0;
+    r.className = 'drow' + (n>0 ? ' on' : '');
+    r.querySelector('.qn').textContent = n;
+    r.querySelector('.qm').disabled = (n<=0);
+    r.querySelector('.qp').disabled = (n>=CFG.QTY_MAX);
+  }
+
   var ks = Object.keys(ST.cart);
   if(ks.length){
     var txt = ks.map(function(c){
-      return labelOf(c) + (typeOf(c)==='DR' && ST.cart[c]>1 ? ' ×'+ST.cart[c] : '');
+      return labelOf(c) + (typeOf(c)==='DR' ? ' ×'+ST.cart[c] : '');
     }).join(' · ');
     $('sum').textContent = txt;
-    $('bar').style.display = 'flex';   /* set rõ 'flex', không dùng '' */
+    $('bar').style.display = 'flex';
   }else{
     $('bar').style.display = 'none';
   }
@@ -315,7 +355,7 @@ function send(){
     return { code:c, label:labelOf(c), type:typeOf(c), qty:ST.cart[c] };
   });
   var listTxt = items.map(function(i){
-    return i.label + (i.type==='DR' && i.qty>1 ? ' ×'+i.qty : '');
+    return i.label + (i.type==='DR' ? ' ×'+i.qty : '');
   }).join(', ');
 
   api('don.tao', {
@@ -327,7 +367,6 @@ function send(){
   }).then(function(r){
     $('btnSend').disabled = false;
     if(!r || !r.ok){ alert('Không gửi được, vui lòng thử lại hoặc báo nhân viên.'); return; }
-    /* Không bao giờ tiết lộ đơn bị đánh dấu nghi ngờ — phía khách luôn thấy như bình thường */
     ST.orderId = r.orderId;
     $('sentList').textContent = listTxt;
     $('stTx').textContent = 'Đang chờ quầy tiếp nhận…';
@@ -382,6 +421,7 @@ function applyRoom(r){
   $('roomBox').className = 'room';
   $('devTag').textContent = ST.branchName + ' · ' + deviceId().slice(0,7);
   $('ovInit').style.display = 'none';
+  loadMenu();
 }
 
 function resolve(token, isSetup){
@@ -393,7 +433,7 @@ function resolve(token, isSetup){
     applyRoom(r);
     if(isSetup){
       localStorage.setItem('bmb_token', token);
-      localStorage.setItem('bmb_tablet','1');   /* máy đã được nhân viên gán = tablet của quán */
+      localStorage.setItem('bmb_tablet','1');
     }
     return true;
   });
@@ -405,6 +445,7 @@ function openPin(mode){
   $('pinInp').value = '';
   $('pinInp').setAttribute('maxlength','6');
   $('pinInp').setAttribute('placeholder','••••');
+  $('pinLbl').style.display = 'none';
   $('pinTitle').textContent = 'Nhập mã nhân viên';
   $('pinDesc').textContent  = 'Chỉ nhân viên mới thực hiện thao tác này.';
   $('pinHint').textContent  = '';
@@ -413,21 +454,26 @@ function openPin(mode){
   setTimeout(function(){ $('pinInp').focus(); }, 100);
 }
 
+function showCodeStep(hintTxt){
+  $('pinTitle').textContent = 'Nhập mã 4 số của phòng';
+  $('pinDesc').textContent  = 'Mã này in ngay dưới mã QR dán trên bàn, hoặc xem tại quầy (tab "In mã QR").';
+  $('pinLbl').style.display = 'block';
+  $('pinInp').value=''; $('pinInp').setAttribute('maxlength','4');
+  $('pinInp').setAttribute('placeholder','0000');
+  $('pinHint').textContent = hintTxt || '';
+  setTimeout(function(){ $('pinInp').focus(); }, 50);
+}
+
 function pinOk(){
   var v = $('pinInp').value.trim();
   if(ST.pinMode==='pin'){
     if(v !== CFG.PIN){ $('pinHint').textContent = 'Mã nhân viên không đúng.'; $('pinInp').value=''; return; }
     ST.pinMode = 'scan';
-    $('pinTitle').textContent = 'Quét mã QR trên bàn';
-    $('pinDesc').textContent  = 'Hướng camera vào mã QR dán trên bàn của phòng này.';
-    $('pinInp').value=''; $('pinInp').setAttribute('maxlength','4');
-    $('pinInp').setAttribute('placeholder','mã 4 số');
-    $('pinHint').textContent = 'Không quét được? Nhập 4 số in dưới mã QR rồi bấm Xác nhận.';
     startCam();
   }else if(ST.pinMode==='scan'){
     if(!/^\d{4}$/.test(v)){ $('pinHint').textContent = 'Nhập đúng 4 chữ số in dưới mã QR.'; return; }
     api('phong.resolve', {ma4: v}).then(function(r){
-      if(!r || !r.ok){ $('pinHint').textContent = 'Mã 4 số không đúng.'; return; }
+      if(!r || !r.ok){ $('pinHint').textContent = 'Mã 4 số không đúng. Kiểm tra lại trên tờ QR hoặc hỏi quầy.'; $('pinInp').value=''; $('pinInp').focus(); return; }
       localStorage.setItem('bmb_token', r.token);
       localStorage.setItem('bmb_tablet','1');
       applyRoom(r);
@@ -439,13 +485,16 @@ function pinOk(){
 
 function startCam(){
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    $('pinHint').textContent = 'Máy không hỗ trợ camera trên trình duyệt. Vui lòng nhập mã 4 số.';
+    showCodeStep('Máy không hỗ trợ camera trên trình duyệt này — nhập mã 4 số ở trên.');
     return;
   }
   if(!('BarcodeDetector' in window)){
-    $('pinHint').textContent = 'Trình duyệt chưa hỗ trợ quét mã. Vui lòng nhập mã 4 số in dưới QR.';
+    showCodeStep('Trình duyệt này chưa hỗ trợ quét mã (thường gặp trên máy tính) — nhập mã 4 số ở trên.');
     return;
   }
+  $('pinTitle').textContent = 'Quét mã QR trên bàn';
+  $('pinDesc').textContent  = 'Hướng camera vào mã QR dán trên bàn của phòng này.';
+  showCodeStep('Không quét được? Nhập 4 số in dưới mã QR rồi bấm Xác nhận.');
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})
   .then(function(s){
     ST.stream = s;
@@ -472,9 +521,9 @@ function startCam(){
   })
   .catch(function(err){
     if(err && (err.name==='NotAllowedError' || err.name==='SecurityError')){
-      $('pinHint').textContent = 'Camera đang bị chặn. Vào Cài đặt → Ứng dụng → Chrome → Quyền → Camera để bật, hoặc nhập mã 4 số bên trên.';
+      showCodeStep('Camera đang bị chặn. Vào Cài đặt → Ứng dụng → Chrome → Quyền → Camera để bật, hoặc nhập mã 4 số ở trên.');
     }else{
-      $('pinHint').textContent = 'Không mở được camera. Vui lòng nhập mã 4 số.';
+      showCodeStep('Không mở được camera. Nhập mã 4 số ở trên.');
     }
   });
 }
@@ -518,7 +567,6 @@ function touch(){
   document.addEventListener('touchstart', touch, {passive:true});
   document.addEventListener('click', touch);
 
-  /* nút đổi phòng: giữ 2 giây trên ô số phòng (khách bấm thường không ra) */
   var hold = null;
   var box = $('roomBox');
   box.addEventListener('touchstart', function(){ hold = setTimeout(function(){ openPin('pin'); }, 2000); }, {passive:true});
@@ -526,7 +574,6 @@ function touch(){
   box.addEventListener('mousedown',  function(){ hold = setTimeout(function(){ openPin('pin'); }, 2000); });
   box.addEventListener('mouseup',    function(){ if(hold) clearTimeout(hold); });
 
-  /* nguồn token: ?t= trên URL (khách quét QR)  >  localStorage (tablet đã gán) */
   var urlT = '';
   try{ urlT = new URLSearchParams(location.search).get('t') || ''; }catch(e){}
   var savedT = localStorage.getItem('bmb_token') || '';
