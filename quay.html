@@ -270,8 +270,7 @@ td b{color:var(--txt)}
    BMB — Dashboard quầy. Dùng chung CFG.API với index.html.
    ============================================================ */
 var CFG = {
-  API   : 'https://script.google.com/macros/s/AKfycbyBY956QqkNkY03_f-_hjUsXfECZRF_OIB1-OK1eSlrOvEshU5adr20iv7Ua_txNkk54w/exec',
-  SALT  : 'bmb.order.v1',   /* chuỗi cố định băm phía client — phải giống hằng trong Code.gs */
+  API   : 'https://bmb-order-worker.vumanhhung85.workers.dev',
   POLL  : 8,                /* giây */
   SLA1  : 180,              /* 3 phút: cảnh báo vàng */
   SLA2  : 600               /* 10 phút: cảnh báo đỏ */
@@ -281,19 +280,11 @@ var $ = function(id){ return document.getElementById(id); };
 var S = { tok:'', branch:'', bname:'', vaiTro:'', rooms:[], orders:[], qr:[], ips:[], lastCount:0, audio:null, tm:null };
 
 /* ---------- tiện ích ---------- */
-function sha256(s){
-  var b = new TextEncoder().encode(s);
-  return crypto.subtle.digest('SHA-256', b).then(function(h){
-    return Array.prototype.map.call(new Uint8Array(h), function(x){
-      return ('00'+x.toString(16)).slice(-2);
-    }).join('');
-  });
-}
 function api(action, data){
   data = data || {}; data.action = action;
-  if(S.tok) data.tok = S.tok;
+  if(S.tok) data.session = S.tok;
   return fetch(CFG.API, {
-    method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(data)
   }).then(function(r){ return r.json(); });
 }
@@ -353,17 +344,11 @@ function showLoginMsg(txt, kind){
 function login(){
   var u = $('lgU').value.trim(), p = $('lgP').value;
   if(!u || !p){ showLoginMsg('Nhập đủ tài khoản và mật khẩu.'); return; }
-  if(!window.crypto || !window.crypto.subtle){
-    showLoginMsg('Trang đang chạy KHÔNG qua HTTPS nên trình duyệt chặn mã hoá mật khẩu. Chờ chứng chỉ HTTPS của tên miền cấp xong, hoặc tạm dùng địa chỉ .github.io.');
-    return;
-  }
   showLoginMsg('Đang kiểm tra…', 'warn');
-  sha256(CFG.SALT + '|' + u.toLowerCase() + '|' + p).then(function(h){
-    return api('auth.login', {user:u, pass:h});
-  }).then(function(r){
+  api('auth.login', {user:u, pass:p}).then(function(r){
     if(!r || !r.ok){ showLoginMsg((r && r.msg) || 'Sai tài khoản hoặc mật khẩu.'); return; }
-    S.tok = r.tok; S.branch = r.branchId; S.bname = r.branchName; S.vaiTro = r.vaiTro || 'QUAY';
-    sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.tok, b:r.branchId, n:r.branchName, vt:S.vaiTro}));
+    S.tok = r.session; S.branch = r.branchId; S.bname = r.branchName; S.vaiTro = r.vaiTro || 'QUAY';
+    sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.session, b:r.branchId, n:r.branchName, vt:S.vaiTro}));
     start();
   }).catch(function(err){
     console.error('BMB đăng nhập lỗi:', err);
