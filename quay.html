@@ -58,8 +58,7 @@ button,input{font:inherit;color:inherit}
 .msg.bad{background:rgba(255,92,122,.12);border:1px solid rgba(255,92,122,.35);color:#FFAABB}
 .msg.warn{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.32);color:#FFD79A}
 
-/* ── header: topbar (hàng 1) + tabs (hàng 2), TÁCH RIÊNG như admin.html —
-   nhét chung 1 hàng là lý do bị che trên điện thoại ── */
+/* ── header: topbar (hàng 1) + tabs (hàng 2), TÁCH RIÊNG như admin.html ── */
 .wrap{max-width:1180px;margin:0 auto;padding:0 18px}
 header{position:sticky;top:0;z-index:30;background:rgba(20,6,31,.75);
   backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
@@ -100,7 +99,7 @@ header{position:sticky;top:0;z-index:30;background:rgba(20,6,31,.75);
 .stat .v{font-family:'Baloo 2';font-size:29px;font-weight:800;line-height:1.2;margin-top:2px}
 .stat.y .v{color:var(--yellow)} .stat.g .v{color:var(--ok)} .stat.r .v{color:var(--bad)}
 
-/* ── lưới phòng: bảng vật lý, hình khối riêng biệt với thẻ đơn ── */
+/* ── lưới phòng ── */
 .sect-lbl{font-size:13px;font-weight:700;color:var(--txt-dim);margin:2px 0 10px}
 .rooms{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
 .rm{width:76px;height:64px;border-radius:14px;background:linear-gradient(160deg,rgba(52,25,90,.8),rgba(36,18,55,.8));
@@ -164,7 +163,7 @@ td b{color:var(--txt)}
   padding:12px 15px;margin-bottom:18px;border-left:2px solid var(--purple);line-height:1.65}
 .hint b{color:var(--txt)}
 
-/* ── tab Cài đặt: sửa menu gọi phục vụ ── */
+/* ── tab Cài đặt: sửa menu ── */
 .mrow{display:flex;align-items:center;gap:10px;background:linear-gradient(160deg,rgba(52,25,90,.8),rgba(36,18,55,.8));
   border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
 .mrow.an{opacity:.45}
@@ -175,6 +174,20 @@ td b{color:var(--txt)}
 .mrow select{background:rgba(20,6,31,.5);border:1px solid var(--line-soft);border-radius:8px;
   padding:8px 10px;font-size:13px;color:var(--txt)}
 .mrow .code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--txt-mute);width:64px;flex-shrink:0}
+
+/* ── Popup chặn thiết bị + tạo tài khoản ── */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);
+  z-index:100;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:linear-gradient(165deg,var(--plum2),var(--plum));border:1px solid var(--line);
+  border-radius:20px;padding:28px;box-shadow:var(--shadow);max-width:400px;width:90%}
+.modal-box h3{margin-bottom:16px;font-size:18px}
+.modal-box .fld{margin-bottom:12px}
+.modal-box .fld input,.modal-box .fld textarea,.modal-box .fld select{width:100%;padding:10px 12px;border-radius:10px;
+  background:rgba(20,6,31,.5);border:1px solid var(--line-soft);font-size:13.5px;color:var(--txt)}
+.modal-box textarea{resize:vertical;min-height:80px;font-family:inherit}
+.modal-box .actions{display:flex;gap:10px;margin-top:20px}
+.modal-box .actions .btn{flex:1}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -207,6 +220,7 @@ td b{color:var(--txt)}
         <div class="tab" data-p="p3">In mã QR</div>
         <div class="tab" data-p="p4">Mạng</div>
         <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">⚙️ Cài đặt</div>
+        <div class="tab" data-p="p6" id="tabTaiKhoan" style="display:none">👥 Quản lý TK</div>
       </div>
     </div>
   </header>
@@ -263,11 +277,54 @@ td b{color:var(--txt)}
       <button class="btn btn-y btn-sm" id="btnMenuAdd">+ Thêm mới</button>
     </div>
   </div>
+
+  <div class="pg" id="p6">
+    <div class="hint">
+      Tạo tài khoản mới cho quầy hoặc quản trị viên. Tài khoản mới chỉ thấy chi nhánh của mình.<br>
+      Bấm <b>Khoá</b> để tạm vô hiệu hoá tài khoản (nhân viên không thể đăng nhập), <b>Mở</b> để kích hoạt lại.
+    </div>
+    <button class="btn btn-y btn-sm" id="btnAccAdd" style="margin-bottom:14px">+ Tạo tài khoản mới</button>
+    <div class="tblwrap"><table><thead><tr><th>Tài khoản</th><th>Vai trò</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="tbAcc"></tbody></table></div>
+  </div>
+</div>
+
+<!-- Modal chặn thiết bị -->
+<div class="modal-overlay" id="modalChanTb">
+  <div class="modal-box">
+    <h3>Chặn thiết bị 24h</h3>
+    <div class="hint">Thiết bị sẽ không thể gửi đơn trong 24 giờ tới.</div>
+    <div class="fld"><span>Lý do chặn (không bắt buộc)</span>
+      <textarea id="chanLyDo" placeholder="Vd: Gửi spam, không ghi đơn đúng..."></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn btn-bad btn-sm" id="btnChanSubmit">Chặn ngay</button>
+      <button class="btn btn-ghost btn-sm" id="btnChanCancel">Huỷ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal tạo tài khoản -->
+<div class="modal-overlay" id="modalAccAdd">
+  <div class="modal-box">
+    <h3>Tạo tài khoản mới</h3>
+    <div class="fld"><span>Tên tài khoản</span><input id="accUsername" placeholder="vd: quay01"></div>
+    <div class="fld"><span>Mật khẩu</span><input id="accPassword" type="password" placeholder="••••••••"></div>
+    <div class="fld"><span>Vai trò</span>
+      <select id="accVaiTro">
+        <option value="QUAY">Quầy (chỉ tiếp nhận đơn)</option>
+        <option value="ADMIN">Quản trị (sửa menu &amp; tài khoản)</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn btn-y btn-sm" id="btnAccSubmit">Tạo tài khoản</button>
+      <button class="btn btn-ghost btn-sm" id="btnAccCancel">Đóng</button>
+    </div>
+  </div>
 </div>
 
 <script>
 /* ============================================================
-   BMB — Dashboard quầy. Dùng chung CFG.API với index.html.
+   BMB — Dashboard quầy (Khối 5: device blocking + account management)
    ============================================================ */
 var CFG = {
   API   : 'https://bmb-order-worker.vumanhhung85.workers.dev',
@@ -277,7 +334,7 @@ var CFG = {
 };
 
 var $ = function(id){ return document.getElementById(id); };
-var S = { tok:'', branch:'', bname:'', vaiTro:'', rooms:[], orders:[], qr:[], ips:[], lastCount:0, audio:null, tm:null };
+var S = { tok:'', branch:'', bname:'', vaiTro:'', rooms:[], orders:[], qr:[], ips:[], accounts:[], lastCount:0, audio:null, tm:null, chanOrdId:null };
 
 /* ---------- tiện ích ---------- */
 function api(action, data){
@@ -361,7 +418,7 @@ function start(){
   $('app').style.display = 'block';
   $('hTt').textContent = S.bname;
   $('whoTx').textContent = S.branch;
-  if(S.vaiTro === 'ADMIN') $('tabCaiDat').style.display = '';
+  if(S.vaiTro === 'ADMIN'){ $('tabCaiDat').style.display = ''; $('tabTaiKhoan').style.display = ''; }
   if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
   loadStatic();
   tick();
@@ -433,7 +490,7 @@ function cardHtml(o){
   if(o.status==='MOI'){
     h += '<div class="ac"><button class="btn btn-y btn-sm" onclick="act(\''+o.id+'\',\'nhan\')">Tiếp nhận</button>'
        + '<button class="btn btn-ghost btn-sm" onclick="act(\''+o.id+'\',\'huy\')">Huỷ</button></div>';
-    if(o.nghiNgo) h += '<div class="ac"><button class="btn btn-bad btn-sm" onclick="blockDev(\''+o.id+'\')">Chặn thiết bị 24h</button></div>';
+    if(o.nghiNgo && o.devId) h += '<div class="ac"><button class="btn btn-bad btn-sm" onclick="openChanModal(\''+o.id+'\')">Chặn thiết bị 24h</button></div>';
   }else if(o.status==='NHAN'){
     h += '<div class="ac"><button class="btn btn-ok btn-sm" onclick="act(\''+o.id+'\',\'xong\')">Hoàn tất</button>'
        + '<button class="btn btn-ghost btn-sm" onclick="act(\''+o.id+'\',\'huy\')">Huỷ</button></div>';
@@ -497,7 +554,7 @@ function drawIp(){
   }).join('') || '<tr><td colspan="5" class="mut">Chưa ghi nhận. Cần ít nhất 1 đơn gửi từ tablet trong phòng.</td></tr>';
 }
 
-/* ---------- tab Cài đặt: sửa menu gọi phục vụ (chỉ admin) ---------- */
+/* ---------- tab Cài đặt: sửa menu (admin) ---------- */
 function drawMenuAdmin(items){
   $('menuList').innerHTML = items.map(function(it){
     return '<div class="mrow'+(it.an?' an':'')+'" data-code="'+esc(it.code)+'">'
@@ -556,16 +613,81 @@ function loadMenuAdmin(){
   });
 }
 
+/* ---------- tab Quản lý tài khoản (admin) ---------- */
+function drawAccounts(items){
+  $('tbAcc').innerHTML = items.map(function(it){
+    var st = it.hoatDong ? '<span class="pill p-ok">đang dùng</span>' : '<span class="pill p-n">đã khoá</span>';
+    var btnTxt = it.hoatDong ? 'Khoá' : 'Mở';
+    var btnCls = it.hoatDong ? 'btn-bad' : 'btn-ok';
+    return '<tr><td><b>'+esc(it.username)+'</b></td><td>'+it.vaiTro+'</td><td>'+st+'</td>'
+         + '<td><button class="btn '+btnCls+' btn-sm" onclick="toggleAcc(\''+esc(it.username)+'\','+(!it.hoatDong)+')">'
+         + btnTxt+'</button></td></tr>';
+  }).join('') || '<tr><td colspan="4" class="mut">Chưa có tài khoản nào.</td></tr>';
+}
+function loadAccounts(){
+  $('tbAcc').innerHTML = '<tr><td colspan="4" class="mut">Đang tải…</td></tr>';
+  api('admin.taiKhoan.danhSach', {}).then(function(r){
+    if(!r || !r.ok){ $('tbAcc').innerHTML = '<tr><td colspan="4" class="mut">Không tải được danh sách.</td></tr>'; return; }
+    S.accounts = r.accounts;
+    drawAccounts(r.accounts);
+  });
+}
+function toggleAcc(username, khoa){
+  if(!confirm((khoa?'Khoá':'Mở')+' tài khoản '+username+'?')) return;
+  api('admin.taiKhoan.khoa', {username:username, khoa:khoa}).then(function(r){
+    if(!r || !r.ok){ alert('Thao tác thất bại: '+((r&&r.msg)||'')); return; }
+    loadAccounts();
+  });
+}
+function openAccModal(){
+  $('accUsername').value = '';
+  $('accPassword').value = '';
+  $('accVaiTro').value = 'QUAY';
+  $('modalAccAdd').classList.add('show');
+}
+function closeAccModal(){
+  $('modalAccAdd').classList.remove('show');
+}
+function submitAccAdd(){
+  var username = $('accUsername').value.trim();
+  var matKhau = $('accPassword').value;
+  var vaiTro = $('accVaiTro').value;
+  if(!username || !matKhau){ alert('Nhập đủ tài khoản và mật khẩu.'); return; }
+  api('admin.taiKhoan.tao', {username:username, matKhau:matKhau, vaiTro:vaiTro}).then(function(r){
+    if(!r || !r.ok){ alert('Tạo thất bại: '+((r&&r.msg)||'')); return; }
+    alert('Tạo tài khoản thành công!');
+    closeAccModal();
+    loadAccounts();
+  });
+}
+
+/* ---------- chặn thiết bị (Khối 5) ---------- */
+function openChanModal(orderId){
+  S.chanOrdId = orderId;
+  $('chanLyDo').value = '';
+  $('modalChanTb').classList.add('show');
+}
+function closeChanModal(){
+  $('modalChanTb').classList.remove('show');
+  S.chanOrdId = null;
+}
+function submitChan(){
+  if(!S.chanOrdId){ alert('Lỗi: không xác định được đơn hàng.'); return; }
+  var lyDo = $('chanLyDo').value.trim();
+  api('quay.chan', {orderId:S.chanOrdId, lyDo:lyDo}).then(function(r){
+    if(!r || !r.ok){ alert('Chặn thất bại: '+((r&&r.msg)||'')); return; }
+    alert('Đã chặn thiết bị trong 24h.');
+    closeChanModal();
+    tick();
+  });
+}
+
 /* ---------- hành động ---------- */
 function act(id, a){
   if(a==='huy' && !confirm('Huỷ yêu cầu này?')) return;
   api('quay.don', {orderId:id, act:a}).then(tick);
 }
 function markPos(id){ api('quay.pos', {orderId:id}).then(tick); }
-function blockDev(id){
-  if(!confirm('Chặn thiết bị đã gửi đơn này trong 24 giờ?')) return;
-  api('quay.chan', {orderId:id}).then(tick);
-}
 
 /* ---------- xuất CSV đối soát ---------- */
 function csv(){
@@ -584,12 +706,7 @@ function csv(){
   a.click();
 }
 
-/* ---------- trang in QR ----------
-   V2: đổi chữ "BOOM MUSIC BOX" sang logo thật (Logo_BoomBox.png, cùng
-   thư mục với quay.html); số phòng làm hiệu ứng 3D nổi khối màu vàng-gold
-   thương hiệu; chữ chú thích và mã 4 số in đậm, màu tương phản cao hơn
-   hẳn — vì thẻ dán trong phòng hát, ánh sáng phòng tối, chữ mảnh màu xám
-   trước đây nhìn không rõ. */
+/* ---------- trang in QR ---------- */
 function printQr(){
   var w = window.open('', '_blank');
   var logoUrl = new URL('Logo_BoomBox.png', location.href).href;
@@ -643,6 +760,12 @@ $('btnOut').addEventListener('click', logout);
 $('btnCsv').addEventListener('click', csv);
 $('btnPrint').addEventListener('click', printQr);
 $('btnMenuAdd').addEventListener('click', menuAddNew);
+$('btnAccAdd').addEventListener('click', openAccModal);
+$('btnAccCancel').addEventListener('click', closeAccModal);
+$('btnAccSubmit').addEventListener('click', submitAccAdd);
+$('btnChanCancel').addEventListener('click', closeChanModal);
+$('btnChanSubmit').addEventListener('click', submitChan);
+
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
   t.addEventListener('click', function(){
     Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(x){ x.className='tab'; });
@@ -651,8 +774,10 @@ Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
     var p = this.getAttribute('data-p');
     $(p).className = 'pg on';
     if(p==='p5') loadMenuAdmin();
+    if(p==='p6') loadAccounts();
   });
 });
+
 (function(){
   var s = sessionStorage.getItem('bmb_q');
   if(s){ try{ var o = JSON.parse(s); S.tok=o.tok; S.branch=o.b; S.bname=o.n; S.vaiTro=o.vt||'QUAY'; start(); }catch(e){} }
