@@ -190,6 +190,12 @@ td b{color:var(--txt)}
 .btn-het{background:rgba(255,92,122,.18);border:1px solid rgba(255,92,122,.5);color:#FFAABB}
 .btn-ic{width:34px;padding:8px 0}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.lsbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.lsbar input[type=date]{background:rgba(20,6,31,.6);border:1px solid rgba(255,210,26,.35);color:var(--txt);
+  border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;color-scheme:dark}
+.lsbar .sp{flex:1}
+.lsca{font-size:12.5px;color:var(--txt-mute);margin-bottom:14px}
+.lsca b{color:var(--txt-dim)}
 .khoi-mau{margin-top:34px;padding-top:18px;border-top:1px dashed var(--line-soft)}
 /* hộp chọn món mẫu + thư viện icon */
 .modal-box.rong{max-width:560px;max-height:88vh;overflow-y:auto}
@@ -253,7 +259,7 @@ td b{color:var(--txt)}
       </div>
       <div class="tabs">
         <div class="tab on" data-p="p1">📋 Hàng đợi<span class="n zero" id="nMoi"></span></div>
-        <div class="tab" data-p="p2">Hôm nay</div>
+        <div class="tab" data-p="p2">📅 Lịch sử đơn</div>
         <div class="tab" data-p="p3">In mã QR</div>
         <div class="tab" data-p="p4">Mạng</div>
         <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">🍺 Menu</div>
@@ -279,9 +285,19 @@ td b{color:var(--txt)}
   </div>
 
   <div class="pg" id="p2">
-    <div class="hint">Toàn bộ đơn trong ngày. Dùng cuối ca để đối chiếu với báo cáo dịch vụ của POS — cột <b>POS</b> cho biết nhân viên đã nhập món vào máy tính tiền hay chưa.</div>
-    <button class="btn btn-ghost btn-sm" id="btnCsv" style="margin-bottom:14px">⬇️ Tải CSV đối soát ca</button>
-    <div class="tblwrap"><table><thead><tr><th>Giờ</th><th>Phòng</th><th>Nội dung</th><th>Nguồn</th><th>Trạng thái</th><th>POS</th><th>Phản hồi</th></tr></thead><tbody id="tbToday"></tbody></table></div>
+    <div class="hint">Xem lại đơn theo ngày. Dùng cuối ca để đối chiếu với báo cáo của máy tính tiền — cột <b>POS</b> cho biết nhân viên đã nhập món vào máy tính tiền hay chưa.
+      <b>Một ngày tính từ 06:00 sáng đến 06:00 sáng hôm sau</b> (trọn một ca mở cửa), nên đơn lúc 1–2 giờ sáng vẫn thuộc ngày hôm trước.</div>
+    <div class="lsbar">
+      <button class="btn btn-ghost btn-sm btn-ic" id="lsTruoc" title="Ngày trước">◀</button>
+      <input type="date" id="lsNgay" aria-label="Chọn ngày">
+      <button class="btn btn-ghost btn-sm btn-ic" id="lsSau" title="Ngày sau">▶</button>
+      <button class="btn btn-ghost btn-sm" id="lsHomNay">Hôm nay</button>
+      <span class="sp"></span>
+      <button class="btn btn-ghost btn-sm" id="btnCsv">⬇️ Tải CSV đối soát</button>
+    </div>
+    <div class="lsca" id="lsCa"></div>
+    <div class="stats" id="lsTong"></div>
+    <div class="tblwrap"><table><thead><tr><th>Giờ</th><th>Phòng</th><th>Nội dung</th><th>Nguồn</th><th>Trạng thái</th><th>POS</th><th>Phản hồi</th><th>Người xử lý</th></tr></thead><tbody id="tbToday"></tbody></table></div>
   </div>
 
   <div class="pg" id="p3">
@@ -452,18 +468,36 @@ function agoCls(iso){
 }
 
 /* ---------- chuông + favicon + thông báo ---------- */
+/* Chuông báo đơn mới: 3 nốt đi lên (Đô-Mi-Sol), kiểu "ting-ting-ting" quen thuộc
+   của app nhận đơn — to và rõ hơn tiếng bíp cũ. Có bộ nén (compressor) để tăng âm
+   lượng mà không bị vỡ tiếng, và thêm bồi âm bát độ cho mỗi nốt nghe đầy như chuông
+   thật thay vì tiếng bíp điện tử mỏng. */
 function beep(){
   try{
     if(!S.audio) S.audio = new (window.AudioContext||window.webkitAudioContext)();
-    var t = S.audio.currentTime;
-    [0,0.18].forEach(function(off){
-      var o = S.audio.createOscillator(), g = S.audio.createGain();
-      o.type='sine'; o.frequency.value = off ? 1180 : 880;
+    var ctx = S.audio, t = ctx.currentTime;
+
+    var nen = ctx.createDynamicsCompressor();
+    nen.threshold.value = -14; nen.knee.value = 12; nen.ratio.value = 6;
+    nen.attack.value = 0.003; nen.release.value = 0.15;
+    nen.connect(ctx.destination);
+    var master = ctx.createGain();
+    master.gain.value = 0.9;
+    master.connect(nen);
+
+    [1046.5, 1318.5, 1568.0].forEach(function(hz, i){
+      var off = i*0.12, dai = 0.5;
+      var o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
+      var g = ctx.createGain(), gBoi = ctx.createGain();
+      o1.type='sine'; o1.frequency.value = hz;
+      o2.type='sine'; o2.frequency.value = hz*2;   /* bồi âm bát độ — cho tiếng đầy hơn */
+      gBoi.gain.value = 0.25;
       g.gain.setValueAtTime(0.0001, t+off);
-      g.gain.exponentialRampToValueAtTime(0.35, t+off+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+off+0.16);
-      o.connect(g); g.connect(S.audio.destination);
-      o.start(t+off); o.stop(t+off+0.18);
+      g.gain.exponentialRampToValueAtTime(0.85, t+off+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+off+dai);
+      o1.connect(g); o2.connect(gBoi); gBoi.connect(g); g.connect(master);
+      o1.start(t+off); o1.stop(t+off+dai+0.05);
+      o2.start(t+off); o2.stop(t+off+dai+0.05);
     });
   }catch(e){}
 }
@@ -543,6 +577,7 @@ function doiChiNhanh(){
   luuPhien();
   $('hTt').textContent = S.bname;
   S.lastCount = 0; S.orders = []; S.rooms = [];
+  datNgayLS(ngayHomNay());
   loadStatic(); tick();
   var on = document.querySelector('.tab.on');
   var p = on ? on.getAttribute('data-p') : '';
@@ -696,18 +731,63 @@ function drawBoard(){
   document.title = n ? '('+n+') BMB — Quầy' : 'BMB — Quầy';
 }
 
+/* ---------- Lịch sử đơn theo ngày (ngày kinh doanh 06:00 → 06:00) ---------- */
+var GIO_CHOT = 6;
+function ngayHomNay(){ return new Date(Date.now() + 7*3600e3 - GIO_CHOT*3600e3).toISOString().slice(0,10); }
+function congNgay(ngay, n){ var d = new Date(ngay+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+function ngayVN(ngay){ var p = ngay.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+var LS = { ngay:'', don:[], dangTai:false };
+
+function datNgayLS(ngay){
+  var homNay = ngayHomNay();
+  if(!ngay || ngay > homNay) ngay = homNay;
+  LS.ngay = ngay;
+  $('lsNgay').value = ngay; $('lsNgay').max = homNay;
+  $('lsSau').disabled = ngay >= homNay;
+  $('lsHomNay').disabled = ngay === homNay;
+  var mai = congNgay(ngay, 1);
+  $('lsCa').innerHTML = 'Đang xem ca từ <b>06:00 '+ngayVN(ngay)+'</b> đến <b>06:00 '+ngayVN(mai)+'</b>'
+    + (ngay===homNay ? ' · <b>đang diễn ra</b>, tự cập nhật' : '');
+  if(ngay === homNay){ LS.don = S.orders; drawToday(); return; }   /* hôm nay: dùng luôn dữ liệu hàng đợi, tự cập nhật theo tick */
+  LS.don = []; LS.dangTai = true; drawToday();
+  api('quay.lichSu', {ngay:ngay}).then(function(r){
+    if(LS.ngay !== ngay) return;                                   /* người dùng đã chuyển ngày khác trong lúc chờ */
+    LS.dangTai = false;
+    if(!r || !r.ok){ if(r && r.msg==='HET_PHIEN'){ logout(); return; } $('tbToday').innerHTML = '<tr><td colspan="8" class="mut">'+esc((r&&r.msg)||'Không tải được.')+'</td></tr>'; return; }
+    LS.don = r.orders;
+    drawToday();
+    if(r.duGioiHan) alert('Ngày này có quá nhiều đơn, chỉ hiện 1000 đơn đầu tiên.');
+  }).catch(function(){ LS.dangTai = false; $('tbToday').innerHTML = '<tr><td colspan="8" class="mut">Mất kết nối.</td></tr>'; });
+}
+
+/* tick() gọi hàm này mỗi lần hàng đợi cập nhật: chỉ vẽ lại khi đang xem hôm nay */
 function drawToday(){
-  $('tbToday').innerHTML = S.orders.map(function(o){
+  if(!LS.ngay) LS.ngay = ngayHomNay();
+  if(LS.ngay === ngayHomNay()) LS.don = S.orders;
+  var ds = LS.don;
+  var coDr = function(o){ return o.items.some(function(i){ return i.type==='DR'; }); };
+  var t = { tong: ds.length,
+    xong: ds.filter(function(o){ return o.status==='XONG'; }).length,
+    huy:  ds.filter(function(o){ return o.status==='HUY'; }).length,
+    chuaPos: ds.filter(function(o){ return o.status!=='HUY' && coDr(o) && !o.pos; }).length };
+  $('lsTong').innerHTML = LS.dangTai ? '' :
+      '<div class="stat"><div class="k">Tổng đơn</div><div class="v">'+t.tong+'</div></div>'
+    + '<div class="stat g"><div class="k">Hoàn tất</div><div class="v">'+t.xong+'</div></div>'
+    + '<div class="stat"><div class="k">Đã huỷ</div><div class="v">'+t.huy+'</div></div>'
+    + '<div class="stat '+(t.chuaPos?'r':'')+'"><div class="k">Có nước, chưa nhập POS</div><div class="v">'+t.chuaPos+'</div></div>';
+  if(LS.dangTai){ $('tbToday').innerHTML = '<tr><td colspan="8" class="mut">Đang tải…</td></tr>'; return; }
+  $('tbToday').innerHTML = ds.map(function(o){
     var its = o.items.map(function(i){ return i.label + (i.qty>1?' ×'+i.qty:''); }).join(', ');
     var st = {MOI:'<span class="pill p-w">Mới</span>', NHAN:'<span class="pill p-w">Đang phục vụ</span>',
-              XONG:'<span class="pill p-ok">Xong</span>', HUY:'<span class="pill p-n">Huỷ</span>'}[o.status] || o.status;
-    var pos = o.items.some(function(i){return i.type==='DR';})
+              XONG:'<span class="pill p-ok">Xong</span>', HUY:'<span class="pill p-n">Huỷ</span>'}[o.status] || esc(o.status);
+    var pos = coDr(o)
       ? (o.pos ? '<span class="pill p-ok">đã nhập</span>' : '<span class="pill p-w">chưa</span>') : '<span class="mut">—</span>';
     var pv = o.nhanSau==null ? '<span class="mut">—</span>' : (o.nhanSau<60 ? o.nhanSau+'s' : Math.round(o.nhanSau/60)+' phút');
     return '<tr><td>'+hhmm(o.time)+'</td><td><b>'+esc(o.roomName)+'</b></td><td>'+esc(its)
          + (o.nghiNgo?' <span class="pill p-n">nghi ngờ</span>':'')+'</td><td class="mut">'
-         + (o.source==='TABLET'?'tablet':'ĐT khách')+'</td><td>'+st+'</td><td>'+pos+'</td><td>'+pv+'</td></tr>';
-  }).join('') || '<tr><td colspan="7" class="mut">Chưa có đơn nào hôm nay.</td></tr>';
+         + (o.source==='TABLET'?'tablet':'ĐT khách')+'</td><td>'+st+'</td><td>'+pos+'</td><td>'+pv+'</td>'
+         + '<td class="mut">'+esc(o.nguoiXuLy||'—')+'</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="mut">Không có đơn nào trong ngày '+ngayVN(LS.ngay)+'.</td></tr>';
 }
 
 function drawIp(){
@@ -1077,18 +1157,19 @@ function markPos(id){ api('quay.pos', {orderId:id}).then(tick); }
 
 /* ---------- xuất CSV đối soát ---------- */
 function csv(){
-  var rows = [['Gio','Phong','Noi dung','Nguon','Trang thai','Da nhap POS','Phan hoi (giay)']];
-  S.orders.forEach(function(o){
-    rows.push([hhmm(o.time), o.roomName,
+  var rows = [['Ngay','Gio','Phong','Noi dung','Nguon','Trang thai','Da nhap POS','Phan hoi (giay)','Nguoi xu ly']];
+  LS.don.forEach(function(o){
+    var d = new Date(o.time);
+    rows.push([('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(), hhmm(o.time), o.roomName,
       o.items.map(function(i){return i.label+(i.qty>1?' x'+i.qty:'');}).join(' + '),
-      o.source, o.status, o.pos?'x':'', o.nhanSau==null?'':o.nhanSau]);
+      o.source, o.status, o.pos?'x':'', o.nhanSau==null?'':o.nhanSau, o.nguoiXuLy||'']);
   });
   var s = '\ufeff' + rows.map(function(r){
     return r.map(function(c){ return '"'+String(c==null?'':c).replace(/"/g,'""')+'"'; }).join(',');
   }).join('\n');
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([s], {type:'text/csv'}));
-  a.download = 'doi-soat-ca-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'doi-soat-' + (S.bname||S.branch).replace(/[^\wÀ-ỹ]+/g,'-') + '-' + LS.ngay + '.csv';
   a.click();
 }
 
@@ -1144,6 +1225,10 @@ $('lgBtn').addEventListener('click', login);
 $('lgP').addEventListener('keydown', function(e){ if(e.key==='Enter') login(); });
 $('btnOut').addEventListener('click', logout);
 $('btnCsv').addEventListener('click', csv);
+$('lsNgay').addEventListener('change', function(){ if(this.value) datNgayLS(this.value); });
+$('lsTruoc').addEventListener('click', function(){ datNgayLS(congNgay(LS.ngay || ngayHomNay(), -1)); });
+$('lsSau').addEventListener('click', function(){ datNgayLS(congNgay(LS.ngay || ngayHomNay(), 1)); });
+$('lsHomNay').addEventListener('click', function(){ datNgayLS(ngayHomNay()); });
 $('btnPrint').addEventListener('click', printQr);
 $('btnChonMau').addEventListener('click', moChonMau);
 $('btnChonMauOk').addEventListener('click', xacNhanChonMau);
@@ -1172,6 +1257,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
     $(p).className = 'pg on';
     if(p==='p5') loadMenuAdmin();
     if(p==='p6') loadAccounts();
+    if(p==='p2') datNgayLS(LS.ngay || ngayHomNay());   /* lần đầu: ngày hiện tại; sau đó giữ ngày đang xem */
   });
 });
 
