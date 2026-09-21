@@ -434,7 +434,8 @@ var CFG = {
   API   : 'https://bmb-order-worker.vumanhhung85.workers.dev',
   POLL  : 8,                /* giây */
   SLA1  : 180,              /* 3 phút: cảnh báo vàng */
-  SLA2  : 600               /* 10 phút: cảnh báo đỏ */
+  SLA2  : 600,              /* 10 phút: cảnh báo đỏ */
+  NHAC_LAI: 30              /* giây — còn đơn Mới chưa tiếp nhận thì nhắc lại bằng chuông mỗi khoảng này */
 };
 
 var $ = function(id){ return document.getElementById(id); };
@@ -598,10 +599,15 @@ function start(){
   tick();
   if(S.tm) clearInterval(S.tm);
   S.tm = setInterval(tick, CFG.POLL*1000);
+  /* Đơn Mới còn tồn (chưa ai bấm Tiếp nhận) thì nhắc lại bằng chuông mỗi NHAC_LAI giây,
+     không chỉ kêu 1 lần lúc đơn vừa tới — tới khi tiếp nhận hết mới thôi. */
+  if(S.nhacTm) clearInterval(S.nhacTm);
+  S.nhacTm = setInterval(function(){ if(S.lastCount > 0) beep(); }, CFG.NHAC_LAI*1000);
 }
 function logout(){
   sessionStorage.removeItem('bmb_q');
   if(S.tm) clearInterval(S.tm);
+  if(S.nhacTm) clearInterval(S.nhacTm);
   location.reload();
 }
 
