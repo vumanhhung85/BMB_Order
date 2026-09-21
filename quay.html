@@ -188,6 +188,11 @@ td b{color:var(--txt)}
 .modal-box textarea{resize:vertical;min-height:80px;font-family:inherit}
 .modal-box .actions{display:flex;gap:10px;margin-top:20px}
 .modal-box .actions .btn{flex:1}
+.modal-box .chk{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--txt-dim);margin:4px 0 6px;cursor:pointer}
+.modal-box .chk input{width:18px;height:18px;accent-color:var(--yellow)}
+.selcn{background:rgba(20,6,31,.6);border:1px solid rgba(255,210,26,.35);color:var(--yellow);border-radius:999px;
+  padding:6px 12px;font-size:13px;font-weight:600;max-width:190px}
+.selcn option{color:#000}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -198,9 +203,9 @@ td b{color:var(--txt)}
   <div class="loginbox">
     <img src="Logo_BoomBox.png" alt="Boom Music Box">
     <h2>Quầy phục vụ</h2>
-    <div class="sub">Đăng nhập để xem hàng đợi yêu cầu của chi nhánh</div>
+    <div class="sub">Dùng tài khoản của hệ thống quản lý Boom Music Box</div>
     <div class="msg bad" id="lgMsgBox"><span>⚠️</span><span id="lgMsg"></span></div>
-    <div class="fld"><span>Tài khoản chi nhánh</span><input id="lgU" autocomplete="username" placeholder="vd: cn01"></div>
+    <div class="fld"><span>Tên đăng nhập</span><input id="lgU" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="vd: quay_tayhoa"></div>
     <div class="fld"><span>Mật khẩu</span><input id="lgP" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <button class="btn btn-y" id="lgBtn">Đăng nhập</button>
   </div>
@@ -212,7 +217,7 @@ td b{color:var(--txt)}
       <div class="topbar">
         <img src="Logo_BoomBox.png" alt="Boom">
         <div class="tt"><b id="hTt">Quầy phục vụ</b><span>Gọi &amp; xử lý yêu cầu tại phòng</span></div>
-        <div class="who"><span class="badge" id="whoTx"></span><button class="btn btn-ghost btn-sm" id="btnOut">Đăng xuất</button></div>
+        <div class="who"><select class="selcn" id="selCN" style="display:none" aria-label="Chọn chi nhánh"></select><span class="badge" id="whoTx"></span><button class="btn btn-ghost btn-sm" id="btnOut">Đăng xuất</button></div>
       </div>
       <div class="tabs">
         <div class="tab on" data-p="p1">📋 Hàng đợi<span class="n zero" id="nMoi"></span></div>
@@ -220,7 +225,7 @@ td b{color:var(--txt)}
         <div class="tab" data-p="p3">In mã QR</div>
         <div class="tab" data-p="p4">Mạng</div>
         <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">⚙️ Cài đặt</div>
-        <div class="tab" data-p="p6" id="tabTaiKhoan" style="display:none">👥 Quản lý TK</div>
+        <div class="tab" data-p="p6" id="tabTaiKhoan" style="display:none">👥 Tài khoản quầy</div>
       </div>
     </div>
   </header>
@@ -252,8 +257,12 @@ td b{color:var(--txt)}
       In ra, ép plastic hoặc dán decal lên bàn mỗi phòng. Mỗi mã là <b>duy nhất cho một phòng của một chi nhánh</b>.<br>
       Con số 4 chữ số in dưới mã dùng cho <b>nhân viên gán tablet</b> khi camera không quét được — không đưa cho khách.
     </div>
-    <button class="btn btn-y btn-sm" id="btnPrint" style="margin-bottom:14px">🖨️ Mở trang in</button>
-    <div class="tblwrap"><table><thead><tr><th>Phòng</th><th>Mã 4 số</th><th>Đường dẫn</th></tr></thead><tbody id="tbQr"></tbody></table></div>
+    <div class="mrow" id="phongAdmin" style="display:none;background:transparent;border-style:dashed">
+      <input class="lb" id="phongMoi" maxlength="600" placeholder="Thêm phòng — nhiều phòng cách nhau dấu phẩy, vd: P1, P2, P3, VIP1">
+      <button class="btn btn-y btn-sm" id="btnPhongThem">+ Thêm phòng</button>
+    </div>
+    <button class="btn btn-y btn-sm" id="btnPrint" style="margin:6px 0 14px">🖨️ Mở trang in</button>
+    <div class="tblwrap"><table><thead><tr><th>Phòng</th><th>Mã 4 số</th><th>Đường dẫn</th><th></th></tr></thead><tbody id="tbQr"></tbody></table></div>
   </div>
 
   <div class="pg" id="p4">
@@ -280,11 +289,13 @@ td b{color:var(--txt)}
 
   <div class="pg" id="p6">
     <div class="hint">
-      Tạo tài khoản mới cho quầy hoặc quản trị viên. Tài khoản mới chỉ thấy chi nhánh của mình.<br>
-      Bấm <b>Khoá</b> để tạm vô hiệu hoá tài khoản (nhân viên không thể đăng nhập), <b>Mở</b> để kích hoạt lại.
+      Tài khoản <b>nhân viên quầy</b> của chi nhánh này — dùng chung hệ thống tài khoản Boom Music Box.<br>
+      <b>Khoá</b>: nhân viên bị đăng xuất ngay và không đăng nhập lại được. <b>Đặt lại MK</b>: khi nhân viên quên mật khẩu.
+      <b>Sửa menu</b>: cho phép tài khoản quầy tự sửa menu nước/dịch vụ.<br>
+      Tài khoản quản lý, kỹ thuật được tạo và sửa trong app quản lý BMB.
     </div>
     <button class="btn btn-y btn-sm" id="btnAccAdd" style="margin-bottom:14px">+ Tạo tài khoản mới</button>
-    <div class="tblwrap"><table><thead><tr><th>Tài khoản</th><th>Vai trò</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody id="tbAcc"></tbody></table></div>
+    <div class="tblwrap"><table><thead><tr><th>Tài khoản</th><th>Họ tên</th><th>Trạng thái</th><th>Sửa menu</th><th>Đăng nhập cuối</th><th>Hành động</th></tr></thead><tbody id="tbAcc"></tbody></table></div>
   </div>
 </div>
 
@@ -306,15 +317,12 @@ td b{color:var(--txt)}
 <!-- Modal tạo tài khoản -->
 <div class="modal-overlay" id="modalAccAdd">
   <div class="modal-box">
-    <h3>Tạo tài khoản mới</h3>
-    <div class="fld"><span>Tên tài khoản</span><input id="accUsername" placeholder="vd: quay01"></div>
-    <div class="fld"><span>Mật khẩu</span><input id="accPassword" type="password" placeholder="••••••••"></div>
-    <div class="fld"><span>Vai trò</span>
-      <select id="accVaiTro">
-        <option value="QUAY">Quầy (chỉ tiếp nhận đơn)</option>
-        <option value="ADMIN">Quản trị (sửa menu &amp; tài khoản)</option>
-      </select>
-    </div>
+    <h3>Tạo tài khoản quầy</h3>
+    <div class="fld"><span>Tên đăng nhập</span><input id="accUsername" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="vd: quay_tayhoa1"></div>
+    <div class="fld"><span>Họ tên nhân viên</span><input id="accHoTen" maxlength="60" placeholder="vd: Nguyễn Văn A"></div>
+    <div class="fld"><span>Mật khẩu (tối thiểu 6 ký tự)</span><input id="accPassword" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+    <div class="fld"><span>Nhập lại mật khẩu</span><input id="accPassword2" type="password" autocomplete="new-password" placeholder="••••••••"></div>
+    <label class="chk"><input type="checkbox" id="accSuaMenu"> Cho phép sửa menu nước/dịch vụ</label>
     <div class="actions">
       <button class="btn btn-y btn-sm" id="btnAccSubmit">Tạo tài khoản</button>
       <button class="btn btn-ghost btn-sm" id="btnAccCancel">Đóng</button>
@@ -322,9 +330,23 @@ td b{color:var(--txt)}
   </div>
 </div>
 
+<!-- Modal đặt lại mật khẩu -->
+<div class="modal-overlay" id="modalDatLaiMk">
+  <div class="modal-box">
+    <h3>Đặt lại mật khẩu — <span id="mkUser"></span></h3>
+    <div class="hint">Nhân viên sẽ bị đăng xuất khỏi mọi máy và phải dùng mật khẩu mới.</div>
+    <div class="fld"><span>Mật khẩu mới (tối thiểu 6 ký tự)</span><input id="mkMoi" type="password" autocomplete="new-password"></div>
+    <div class="fld"><span>Nhập lại</span><input id="mkMoi2" type="password" autocomplete="new-password"></div>
+    <div class="actions">
+      <button class="btn btn-y btn-sm" id="btnMkSubmit">Lưu mật khẩu</button>
+      <button class="btn btn-ghost btn-sm" id="btnMkCancel">Đóng</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   BMB — Dashboard quầy (Khối 5: device blocking + account management)
+   BMB — Dashboard quầy · bản hợp nhất D1 bmb_data (tài khoản chung với app quản lý BMB)
    ============================================================ */
 var CFG = {
   API   : 'https://bmb-order-worker.vumanhhung85.workers.dev',
@@ -334,12 +356,15 @@ var CFG = {
 };
 
 var $ = function(id){ return document.getElementById(id); };
-var S = { tok:'', branch:'', bname:'', vaiTro:'', rooms:[], orders:[], qr:[], ips:[], accounts:[], lastCount:0, audio:null, tm:null, chanOrdId:null };
+var S = { tok:'', user:'', hoTen:'', branch:'', bname:'', vaiTro:'', quanLy:false, suaMenu:false, branches:[],
+          rooms:[], orders:[], qr:[], ips:[], accounts:[], lastCount:0, audio:null, tm:null, chanOrdId:null, mkUser:'' };
+var VT_TEN = {admin:'Admin', manager:'Quản lý', quay:'Quầy'};
 
 /* ---------- tiện ích ---------- */
 function api(action, data){
   data = data || {}; data.action = action;
   if(S.tok) data.session = S.tok;
+  if(S.branch) data.branchId = S.branch;   /* chỉ admin dùng; tài khoản khác Worker lấy chi nhánh từ tài khoản */
   return fetch(CFG.API, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify(data)
@@ -398,30 +423,77 @@ function showLoginMsg(txt, kind){
   $('lgMsg').textContent = txt;
   $('lgMsgBox').className = txt ? ('msg '+kind+' show') : ('msg '+kind);
 }
+function luuPhien(){
+  sessionStorage.setItem('bmb_q', JSON.stringify({tok:S.tok, user:S.user, hoTen:S.hoTen, b:S.branch, n:S.bname,
+    vt:S.vaiTro, ql:S.quanLy, sm:S.suaMenu, bs:S.branches}));
+}
 function login(){
-  var u = $('lgU').value.trim(), p = $('lgP').value;
+  var u = $('lgU').value.trim().toLowerCase(), p = $('lgP').value;
   if(!u || !p){ showLoginMsg('Nhập đủ tài khoản và mật khẩu.'); return; }
   showLoginMsg('Đang kiểm tra…', 'warn');
+  $('lgBtn').disabled = true;
   api('auth.login', {user:u, pass:p}).then(function(r){
+    $('lgBtn').disabled = false;
     if(!r || !r.ok){ showLoginMsg((r && r.msg) || 'Sai tài khoản hoặc mật khẩu.'); return; }
-    S.tok = r.session; S.branch = r.branchId; S.bname = r.branchName; S.vaiTro = r.vaiTro || 'QUAY';
-    sessionStorage.setItem('bmb_q', JSON.stringify({tok:r.session, b:r.branchId, n:r.branchName, vt:S.vaiTro}));
+    S.tok = r.session; S.user = r.username; S.hoTen = r.hoTen || '';
+    S.vaiTro = r.vaiTro; S.quanLy = !!r.quanLy; S.suaMenu = !!r.suaMenu; S.branches = r.branches || [];
+    S.branch = r.branchId || ''; S.bname = r.branchName || '';
+    if(S.vaiTro === 'admin'){
+      var cu = localStorage.getItem('bmb_q_cn');
+      var chon = S.branches.filter(function(b){ return b.id===cu; })[0] || S.branches[0];
+      S.branch = chon ? chon.id : ''; S.bname = chon ? chon.ten : '';
+    }
+    $('lgP').value = '';
+    luuPhien();
     start();
   }).catch(function(err){
+    $('lgBtn').disabled = false;
     console.error('BMB đăng nhập lỗi:', err);
     showLoginMsg('Không kết nối được máy chủ. (Xem chi tiết trong Console — F12)');
   });
 }
 
+function hienTheoQuyen(){
+  /* đặt CẢ 2 chiều hiện/ẩn — tránh lỗi còn sót giao diện quyền cũ khi đổi tài khoản */
+  $('tabCaiDat').style.display   = S.suaMenu ? '' : 'none';
+  $('tabTaiKhoan').style.display = S.quanLy  ? '' : 'none';
+  $('phongAdmin').style.display  = S.quanLy  ? '' : 'none';
+  $('selCN').style.display       = S.vaiTro==='admin' ? '' : 'none';
+}
+function veChonChiNhanh(){
+  if(S.vaiTro !== 'admin') return;
+  $('selCN').innerHTML = S.branches.map(function(b){
+    return '<option value="'+esc(b.id)+'"'+(b.id===S.branch?' selected':'')+'>'+esc(b.ten)+'</option>';
+  }).join('');
+}
+function doiChiNhanh(){
+  var id = $('selCN').value;
+  var b = S.branches.filter(function(x){ return x.id===id; })[0];
+  if(!b) return;
+  S.branch = b.id; S.bname = b.ten;
+  localStorage.setItem('bmb_q_cn', b.id);
+  luuPhien();
+  $('hTt').textContent = S.bname;
+  S.lastCount = 0; S.orders = []; S.rooms = [];
+  loadStatic(); tick();
+  var on = document.querySelector('.tab.on');
+  var p = on ? on.getAttribute('data-p') : '';
+  if(p==='p5') loadMenuAdmin();
+  if(p==='p6') loadAccounts();
+}
+
 function start(){
   $('login').style.display = 'none';
   $('app').style.display = 'block';
-  $('hTt').textContent = S.bname;
-  $('whoTx').textContent = S.branch;
-  if(S.vaiTro === 'ADMIN'){ $('tabCaiDat').style.display = ''; $('tabTaiKhoan').style.display = ''; }
+  $('hTt').textContent = S.bname || 'Quầy phục vụ';
+  $('whoTx').textContent = (S.hoTen || S.user) + ' · ' + (VT_TEN[S.vaiTro] || S.vaiTro);
+  hienTheoQuyen();
+  veChonChiNhanh();
+  if(S.vaiTro==='admin' && !S.branch){ alert('Chưa có chi nhánh nào đang hoạt động.'); return; }
   if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
   loadStatic();
   tick();
+  if(S.tm) clearInterval(S.tm);
   S.tm = setInterval(tick, CFG.POLL*1000);
 }
 function logout(){
@@ -433,11 +505,36 @@ function logout(){
 /* ---------- nạp dữ liệu ---------- */
 function loadStatic(){
   api('quay.dsPhong').then(function(r){
-    if(!r || !r.ok) return;
+    if(!r || !r.ok){ if(r && r.msg==='HET_PHIEN') logout(); return; }
     S.qr = r.rooms;
     $('tbQr').innerHTML = r.rooms.map(function(x){
-      return '<tr><td><b>'+esc(x.roomName)+'</b></td><td>'+esc(x.ma4)+'</td><td class="mut" style="font-size:11px">'+esc(x.url)+'</td></tr>';
-    }).join('');
+      return '<tr><td><b>'+esc(x.roomName)+'</b></td><td>'+esc(x.ma4)+'</td><td class="mut" style="font-size:11px">'+esc(x.url)+'</td>'
+        + '<td>'+(S.quanLy ? '<button class="btn btn-ghost btn-sm" data-xoa="'+esc(x.roomId)+'" data-ten="'+esc(x.roomName)+'">Xoá</button>' : '')+'</td></tr>';
+    }).join('') || '<tr><td colspan="4" class="mut">Chưa có phòng nào.'+(S.quanLy?' Thêm phòng ở ô phía trên.':' Nhờ quản lý chi nhánh thêm phòng.')+'</td></tr>';
+    Array.prototype.forEach.call(document.querySelectorAll('#tbQr [data-xoa]'), function(b){
+      b.addEventListener('click', function(){ phongXoa(this.getAttribute('data-xoa'), this.getAttribute('data-ten')); });
+    });
+  }).catch(function(){});
+}
+function phongThem(){
+  var ten = $('phongMoi').value.trim();
+  if(!ten){ alert('Nhập tên phòng, nhiều phòng cách nhau dấu phẩy.'); return; }
+  $('btnPhongThem').disabled = true;
+  api('admin.phongThem', {ten:ten}).then(function(r){
+    $('btnPhongThem').disabled = false;
+    if(!r || !r.ok){ alert('Thêm phòng thất bại: '+((r&&r.msg)||(r&&r.error)||'')); return; }
+    var tb = 'Đã thêm '+r.them.length+' phòng.';
+    if(r.trung.length) tb += '\nBỏ qua vì đã có: '+r.trung.join(', ');
+    alert(tb);
+    $('phongMoi').value = '';
+    loadStatic(); tick();
+  }).catch(function(){ $('btnPhongThem').disabled = false; alert('Mất kết nối.'); });
+}
+function phongXoa(id, ten){
+  if(!confirm('Xoá phòng '+ten+'? Mã QR đã in của phòng này sẽ không dùng được nữa.')) return;
+  api('admin.phongXoa', {roomId:id}).then(function(r){
+    if(!r || !r.ok){ alert((r&&r.msg)||'Xoá thất bại.'); return; }
+    loadStatic(); tick();
   });
 }
 
@@ -614,50 +711,89 @@ function loadMenuAdmin(){
 }
 
 /* ---------- tab Quản lý tài khoản (admin) ---------- */
+function ngayGio(ms){
+  if(!ms) return '<span class="mut">chưa</span>';
+  var d = new Date(ms);
+  return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+' '+hhmm(ms);
+}
 function drawAccounts(items){
   $('tbAcc').innerHTML = items.map(function(it){
+    var u = esc(it.username);
     var st = it.hoatDong ? '<span class="pill p-ok">đang dùng</span>' : '<span class="pill p-n">đã khoá</span>';
-    var btnTxt = it.hoatDong ? 'Khoá' : 'Mở';
-    var btnCls = it.hoatDong ? 'btn-bad' : 'btn-ok';
-    return '<tr><td><b>'+esc(it.username)+'</b></td><td>'+it.vaiTro+'</td><td>'+st+'</td>'
-         + '<td><button class="btn '+btnCls+' btn-sm" onclick="toggleAcc(\''+esc(it.username)+'\','+(!it.hoatDong)+')">'
-         + btnTxt+'</button></td></tr>';
-  }).join('') || '<tr><td colspan="4" class="mut">Chưa có tài khoản nào.</td></tr>';
+    var menu = '<label class="chk" style="margin:0"><input type="checkbox" data-menu="'+u+'"'+(it.suaMenu?' checked':'')+'> được sửa</label>';
+    return '<tr><td><b>'+u+'</b></td><td>'+esc(it.hoTen||'')+'</td><td>'+st+'</td><td>'+menu+'</td><td class="mut">'+ngayGio(it.dangNhapCuoi)+'</td>'
+      + '<td style="white-space:nowrap"><button class="btn '+(it.hoatDong?'btn-bad':'btn-ok')+' btn-sm" data-khoa="'+u+'" data-v="'+(it.hoatDong?1:0)+'">'+(it.hoatDong?'Khoá':'Mở')+'</button> '
+      + '<button class="btn btn-ghost btn-sm" data-mk="'+u+'">Đặt lại MK</button></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="mut">Chưa có tài khoản quầy nào cho chi nhánh này.</td></tr>';
+  Array.prototype.forEach.call(document.querySelectorAll('#tbAcc [data-khoa]'), function(b){
+    b.addEventListener('click', function(){ toggleAcc(this.getAttribute('data-khoa'), this.getAttribute('data-v')==='1'); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#tbAcc [data-mk]'), function(b){
+    b.addEventListener('click', function(){ openMkModal(this.getAttribute('data-mk')); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#tbAcc [data-menu]'), function(c){
+    c.addEventListener('change', function(){ doiQuyenMenu(this.getAttribute('data-menu'), this.checked, this); });
+  });
 }
 function loadAccounts(){
-  $('tbAcc').innerHTML = '<tr><td colspan="4" class="mut">Đang tải…</td></tr>';
+  $('tbAcc').innerHTML = '<tr><td colspan="6" class="mut">Đang tải…</td></tr>';
   api('admin.taiKhoan.danhSach', {}).then(function(r){
-    if(!r || !r.ok){ $('tbAcc').innerHTML = '<tr><td colspan="4" class="mut">Không tải được danh sách.</td></tr>'; return; }
+    if(!r || !r.ok){
+      if(r && r.msg==='HET_PHIEN'){ logout(); return; }
+      $('tbAcc').innerHTML = '<tr><td colspan="6" class="mut">'+esc((r&&r.msg)||'Không tải được danh sách.')+'</td></tr>'; return;
+    }
     S.accounts = r.accounts;
     drawAccounts(r.accounts);
   });
 }
 function toggleAcc(username, khoa){
-  if(!confirm((khoa?'Khoá':'Mở')+' tài khoản '+username+'?')) return;
+  if(!confirm((khoa?'Khoá':'Mở')+' tài khoản '+username+'?'+(khoa?'\nNhân viên sẽ bị đăng xuất ngay.':''))) return;
   api('admin.taiKhoan.khoa', {username:username, khoa:khoa}).then(function(r){
     if(!r || !r.ok){ alert('Thao tác thất bại: '+((r&&r.msg)||'')); return; }
     loadAccounts();
   });
 }
+function doiQuyenMenu(username, bat, el){
+  api('admin.taiKhoan.quyenMenu', {username:username, bat:bat}).then(function(r){
+    if(!r || !r.ok){ alert('Không đổi được quyền: '+((r&&r.msg)||'')); el.checked = !bat; }
+  });
+}
 function openAccModal(){
-  $('accUsername').value = '';
-  $('accPassword').value = '';
-  $('accVaiTro').value = 'QUAY';
+  ['accUsername','accHoTen','accPassword','accPassword2'].forEach(function(id){ $(id).value=''; });
+  $('accSuaMenu').checked = false;
   $('modalAccAdd').classList.add('show');
 }
-function closeAccModal(){
-  $('modalAccAdd').classList.remove('show');
-}
+function closeAccModal(){ $('modalAccAdd').classList.remove('show'); }
 function submitAccAdd(){
-  var username = $('accUsername').value.trim();
-  var matKhau = $('accPassword').value;
-  var vaiTro = $('accVaiTro').value;
-  if(!username || !matKhau){ alert('Nhập đủ tài khoản và mật khẩu.'); return; }
-  api('admin.taiKhoan.tao', {username:username, matKhau:matKhau, vaiTro:vaiTro}).then(function(r){
-    if(!r || !r.ok){ alert('Tạo thất bại: '+((r&&r.msg)||'')); return; }
-    alert('Tạo tài khoản thành công!');
+  var username = $('accUsername').value.trim().toLowerCase();
+  var p1 = $('accPassword').value, p2 = $('accPassword2').value;
+  if(!/^[a-z0-9_.]{3,40}$/.test(username)){ alert('Tên đăng nhập 3–40 ký tự: chữ thường không dấu, số, dấu chấm, gạch dưới.'); return; }
+  if(p1.length < 6){ alert('Mật khẩu tối thiểu 6 ký tự.'); return; }
+  if(p1 !== p2){ alert('Hai lần nhập mật khẩu không khớp.'); return; }
+  $('btnAccSubmit').disabled = true;
+  api('admin.taiKhoan.tao', {username:username, hoTen:$('accHoTen').value.trim(), matKhau:p1, suaMenu:$('accSuaMenu').checked}).then(function(r){
+    $('btnAccSubmit').disabled = false;
+    if(!r || !r.ok){ alert('Tạo thất bại: '+((r&&r.msg)||(r&&r.error)||'')); return; }
+    alert('Đã tạo tài khoản '+username+'.');
     closeAccModal();
     loadAccounts();
+  }).catch(function(){ $('btnAccSubmit').disabled = false; alert('Mất kết nối.'); });
+}
+function openMkModal(username){
+  S.mkUser = username;
+  $('mkUser').textContent = username;
+  $('mkMoi').value = ''; $('mkMoi2').value = '';
+  $('modalDatLaiMk').classList.add('show');
+}
+function closeMkModal(){ $('modalDatLaiMk').classList.remove('show'); S.mkUser = ''; }
+function submitMk(){
+  var p1 = $('mkMoi').value, p2 = $('mkMoi2').value;
+  if(p1.length < 6){ alert('Mật khẩu tối thiểu 6 ký tự.'); return; }
+  if(p1 !== p2){ alert('Hai lần nhập không khớp.'); return; }
+  api('admin.taiKhoan.datLaiMk', {username:S.mkUser, matKhau:p1}).then(function(r){
+    if(!r || !r.ok){ alert('Thất bại: '+((r&&r.msg)||'')); return; }
+    alert('Đã đặt lại mật khẩu cho '+S.mkUser+'.');
+    closeMkModal();
   });
 }
 
@@ -685,7 +821,10 @@ function submitChan(){
 /* ---------- hành động ---------- */
 function act(id, a){
   if(a==='huy' && !confirm('Huỷ yêu cầu này?')) return;
-  api('quay.don', {orderId:id, act:a}).then(tick);
+  api('quay.don', {orderId:id, act:a}).then(function(r){
+    if(r && !r.ok && r.msg && r.msg!=='HET_PHIEN') alert(r.msg);
+    tick();
+  });
 }
 function markPos(id){ api('quay.pos', {orderId:id}).then(tick); }
 
@@ -765,6 +904,10 @@ $('btnAccCancel').addEventListener('click', closeAccModal);
 $('btnAccSubmit').addEventListener('click', submitAccAdd);
 $('btnChanCancel').addEventListener('click', closeChanModal);
 $('btnChanSubmit').addEventListener('click', submitChan);
+$('btnMkCancel').addEventListener('click', closeMkModal);
+$('btnMkSubmit').addEventListener('click', submitMk);
+$('btnPhongThem').addEventListener('click', phongThem);
+$('selCN').addEventListener('change', doiChiNhanh);
 
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
   t.addEventListener('click', function(){
@@ -780,7 +923,14 @@ Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
 
 (function(){
   var s = sessionStorage.getItem('bmb_q');
-  if(s){ try{ var o = JSON.parse(s); S.tok=o.tok; S.branch=o.b; S.bname=o.n; S.vaiTro=o.vt||'QUAY'; start(); }catch(e){} }
+  if(!s) return;
+  try{
+    var o = JSON.parse(s);
+    if(!o.user){ sessionStorage.removeItem('bmb_q'); return; }   /* phiên của bản cũ (trước hợp nhất) — bắt đăng nhập lại */
+    S.tok=o.tok; S.user=o.user; S.hoTen=o.hoTen||''; S.branch=o.b||''; S.bname=o.n||'';
+    S.vaiTro=o.vt; S.quanLy=!!o.ql; S.suaMenu=!!o.sm; S.branches=o.bs||[];
+    start();
+  }catch(e){ sessionStorage.removeItem('bmb_q'); }
 })();
 </script>
 </body>
