@@ -525,7 +525,7 @@ function hienTheoQuyen(){
   $('menuTools').style.display   = S.suaMenu ? '' : 'none';
   $('mauAdmin').style.display    = S.vaiTro==='admin' ? '' : 'none';
   $('tabTaiKhoan').style.display = S.quanLy  ? '' : 'none';
-  $('phongAdmin').style.display  = S.quanLy  ? '' : 'none';
+  $('phongAdmin').style.display  = S.vaiTro==='admin' ? '' : 'none';   /* phòng cố định — chỉ admin thêm/xoá */
   $('selCN').style.display       = S.vaiTro==='admin' ? '' : 'none';
 }
 function veChonChiNhanh(){
@@ -577,8 +577,8 @@ function loadStatic(){
     S.qr = r.rooms;
     $('tbQr').innerHTML = r.rooms.map(function(x){
       return '<tr><td><b>'+esc(x.roomName)+'</b></td><td>'+esc(x.ma4)+'</td><td class="mut" style="font-size:11px">'+esc(x.url)+'</td>'
-        + '<td>'+(S.quanLy ? '<button class="btn btn-ghost btn-sm" data-xoa="'+esc(x.roomId)+'" data-ten="'+esc(x.roomName)+'">Xoá</button>' : '')+'</td></tr>';
-    }).join('') || '<tr><td colspan="4" class="mut">Chưa có phòng nào.'+(S.quanLy?' Thêm phòng ở ô phía trên.':' Nhờ quản lý chi nhánh thêm phòng.')+'</td></tr>';
+        + '<td>'+(S.vaiTro==='admin' ? '<button class="btn btn-ghost btn-sm" data-xoa="'+esc(x.roomId)+'" data-ten="'+esc(x.roomName)+'">Xoá</button>' : '')+'</td></tr>';
+    }).join('') || '<tr><td colspan="4" class="mut">Chưa có phòng nào.'+(S.vaiTro==='admin'?' Thêm phòng ở ô phía trên.':' Liên hệ admin để khai báo phòng.')+'</td></tr>';
     Array.prototype.forEach.call(document.querySelectorAll('#tbQr [data-xoa]'), function(b){
       b.addEventListener('click', function(){ phongXoa(this.getAttribute('data-xoa'), this.getAttribute('data-ten')); });
     });
