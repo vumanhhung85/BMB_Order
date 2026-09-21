@@ -175,6 +175,38 @@ td b{color:var(--txt)}
   padding:8px 10px;font-size:13px;color:var(--txt)}
 .mrow .code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--txt-mute);width:64px;flex-shrink:0}
 
+/* ── tab Menu ── */
+.nhomhd{font-family:'Baloo 2';font-weight:800;font-size:16px;margin:20px 0 8px;display:flex;align-items:center;gap:8px}
+.nhomhd .n{font-family:'Be Vietnam Pro';font-size:12px;font-weight:600;color:var(--txt-mute)}
+.mrow .mico{font-size:24px;width:34px;text-align:center;flex-shrink:0}
+.mrow .mten{flex:1;min-width:120px;font-weight:600;color:var(--txt)}
+.mrow .mten small{display:block;font-weight:400;font-size:11.5px;color:var(--txt-mute)}
+.mrow.het .mten{color:var(--txt-mute);text-decoration:line-through}
+.mrow .grp{display:flex;gap:6px;flex-wrap:wrap}
+.tagx{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:1px;
+  background:rgba(255,255,255,.08);color:var(--txt-dim);border:1px solid var(--line-soft);text-decoration:none}
+.btn-sw{min-width:108px}
+.btn-con{background:rgba(61,220,151,.14);border:1px solid rgba(61,220,151,.45);color:var(--ok)}
+.btn-het{background:rgba(255,92,122,.18);border:1px solid rgba(255,92,122,.5);color:#FFAABB}
+.btn-ic{width:34px;padding:8px 0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.khoi-mau{margin-top:34px;padding-top:18px;border-top:1px dashed var(--line-soft)}
+/* hộp chọn món mẫu + thư viện icon */
+.modal-box.rong{max-width:560px;max-height:88vh;overflow-y:auto}
+.mauchon{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer}
+.mauchon:hover{background:rgba(255,255,255,.05)}
+.mauchon input{width:18px;height:18px;accent-color:var(--yellow);flex-shrink:0}
+.mauchon .mico{font-size:21px;width:28px;text-align:center}
+.mauchon.co{opacity:.5;cursor:default}
+.lnk{font-size:12px;color:var(--yellow);cursor:pointer;margin-left:auto;font-weight:600}
+.icbtn{font-size:30px;width:64px;height:56px;border-radius:14px;background:rgba(20,6,31,.5);border:1px dashed rgba(255,210,26,.4);cursor:pointer}
+.icthuvien{display:none;margin-top:10px;background:rgba(20,6,31,.55);border:1px solid var(--line-soft);border-radius:12px;padding:10px;max-height:260px;overflow-y:auto}
+.icthuvien.show{display:block}
+.icthuvien .lbl{font-size:11.5px;font-weight:700;color:var(--txt-mute);margin:6px 2px 4px}
+.icthuvien .luoi{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
+.icthuvien .luoi span{font-size:24px;text-align:center;padding:5px 0;border-radius:8px;cursor:pointer}
+.icthuvien .luoi span:hover,.icthuvien .luoi span.on{background:rgba(255,210,26,.2)}
+
 /* ── Popup chặn thiết bị + tạo tài khoản ── */
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);
   z-index:100;align-items:center;justify-content:center}
@@ -224,7 +256,7 @@ td b{color:var(--txt)}
         <div class="tab" data-p="p2">Hôm nay</div>
         <div class="tab" data-p="p3">In mã QR</div>
         <div class="tab" data-p="p4">Mạng</div>
-        <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">⚙️ Cài đặt</div>
+        <div class="tab" data-p="p5" id="tabCaiDat" style="display:none">🍺 Menu</div>
         <div class="tab" data-p="p6" id="tabTaiKhoan" style="display:none">👥 Tài khoản quầy</div>
       </div>
     </div>
@@ -274,16 +306,19 @@ td b{color:var(--txt)}
   </div>
 
   <div class="pg" id="p5">
-    <div class="hint">
-      Sửa xong bấm <b>Lưu dòng</b> ở từng món. Món đang <b>ẩn</b> sẽ không hiện cho khách nhưng vẫn giữ lại trong đơn cũ.
-      Cột <b>loại</b>: Dịch vụ = khách chỉ bấm gọi (không chọn số lượng); Nước = khách chọn số lượng.
+    <div class="hint" id="menuHint"></div>
+    <div class="toolbar" id="menuTools" style="display:none">
+      <button class="btn btn-y btn-sm" id="btnChonMau">＋ Chọn từ menu mẫu</button>
+      <button class="btn btn-ghost btn-sm" id="btnMonRieng">✏️ Tạo món riêng</button>
     </div>
     <div id="menuList"></div>
-    <div class="mrow" style="margin-top:16px;background:transparent;border-style:dashed">
-      <input class="ic" id="mNewIcon" placeholder="🆕" maxlength="4">
-      <input class="lb" id="mNewLabel" placeholder="Tên món/dịch vụ mới">
-      <select id="mNewType"><option value="DR">Nước (có số lượng)</option><option value="SV">Dịch vụ (chỉ gọi)</option></select>
-      <button class="btn btn-y btn-sm" id="btnMenuAdd">+ Thêm mới</button>
+
+    <div class="khoi-mau" id="mauAdmin" style="display:none">
+      <h3 style="font-size:19px;margin-bottom:6px">Menu mẫu toàn chuỗi <span class="tagx">chỉ admin</span></h3>
+      <div class="hint">Món ở đây là mẫu chung để các chi nhánh chọn về. Sửa tên/icon/nhóm → mọi chi nhánh đang dùng món đó tự cập nhật.
+        <b>Ngừng dùng</b>: không cho chọn thêm nữa, chi nhánh đã chọn vẫn giữ.</div>
+      <button class="btn btn-y btn-sm" id="btnMauMoi" style="margin-bottom:6px">＋ Thêm món mẫu</button>
+      <div id="mauList"></div>
     </div>
   </div>
 
@@ -326,6 +361,37 @@ td b{color:var(--txt)}
     <div class="actions">
       <button class="btn btn-y btn-sm" id="btnAccSubmit">Tạo tài khoản</button>
       <button class="btn btn-ghost btn-sm" id="btnAccCancel">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal chọn món từ menu mẫu -->
+<div class="modal-overlay" id="modalChonMau">
+  <div class="modal-box rong">
+    <h3>Chọn món từ menu mẫu</h3>
+    <div class="hint">Tick những món chi nhánh có bán / có phục vụ. Món đã có trong chi nhánh hiện mờ.</div>
+    <div id="chonMauList"></div>
+    <div class="actions">
+      <button class="btn btn-y btn-sm" id="btnChonMauOk">Thêm vào chi nhánh</button>
+      <button class="btn btn-ghost btn-sm" id="btnChonMauHuy">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal tạo/sửa món (món riêng chi nhánh hoặc món mẫu) -->
+<div class="modal-overlay" id="modalMon">
+  <div class="modal-box rong">
+    <h3 id="monTieuDe">Tạo món riêng</h3>
+    <div class="hint" id="monGhiChu"></div>
+    <div class="fld"><span>Icon — bấm để chọn</span>
+      <button type="button" class="icbtn" id="monIcon">🍽️</button>
+      <div class="icthuvien" id="icThuVien"></div>
+    </div>
+    <div class="fld"><span>Tên món</span><input id="monTen" maxlength="60" placeholder="vd: Bia Larue"></div>
+    <div class="fld"><span>Nhóm</span><select id="monNhom"></select></div>
+    <div class="actions">
+      <button class="btn btn-y btn-sm" id="btnMonLuu">Lưu</button>
+      <button class="btn btn-ghost btn-sm" id="btnMonHuy">Đóng</button>
     </div>
   </div>
 </div>
@@ -413,7 +479,7 @@ function favBadge(n){
   l.href = c.toDataURL();
 }
 function notify(n){
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  if(!(window.Notification) || Notification.permission!=='granted') return;
   try{ new Notification('Có '+n+' yêu cầu mới', {body:'Phòng đang chờ phục vụ', tag:'bmb'}); }catch(e){}
 }
 
@@ -455,7 +521,9 @@ function login(){
 
 function hienTheoQuyen(){
   /* đặt CẢ 2 chiều hiện/ẩn — tránh lỗi còn sót giao diện quyền cũ khi đổi tài khoản */
-  $('tabCaiDat').style.display   = S.suaMenu ? '' : 'none';
+  $('tabCaiDat').style.display   = '';                       /* ai cũng vào được để bật/tắt còn hàng */
+  $('menuTools').style.display   = S.suaMenu ? '' : 'none';
+  $('mauAdmin').style.display    = S.vaiTro==='admin' ? '' : 'none';
   $('tabTaiKhoan').style.display = S.quanLy  ? '' : 'none';
   $('phongAdmin').style.display  = S.quanLy  ? '' : 'none';
   $('selCN').style.display       = S.vaiTro==='admin' ? '' : 'none';
@@ -490,7 +558,7 @@ function start(){
   hienTheoQuyen();
   veChonChiNhanh();
   if(S.vaiTro==='admin' && !S.branch){ alert('Chưa có chi nhánh nào đang hoạt động.'); return; }
-  if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
+  if(window.Notification && Notification.permission==='default') Notification.requestPermission();
   loadStatic();
   tick();
   if(S.tm) clearInterval(S.tm);
@@ -651,62 +719,241 @@ function drawIp(){
   }).join('') || '<tr><td colspan="5" class="mut">Chưa ghi nhận. Cần ít nhất 1 đơn gửi từ tablet trong phòng.</td></tr>';
 }
 
-/* ---------- tab Cài đặt: sửa menu (admin) ---------- */
-function drawMenuAdmin(items){
-  $('menuList').innerHTML = items.map(function(it){
-    return '<div class="mrow'+(it.an?' an':'')+'" data-code="'+esc(it.code)+'">'
-      + '<span class="code">'+esc(it.code)+'</span>'
-      + '<input class="ic" value="'+esc(it.icon)+'" maxlength="4">'
-      + '<input class="lb" value="'+esc(it.label)+'" maxlength="60">'
-      + '<select><option value="DR"'+(it.type==='DR'?' selected':'')+'>Nước (có số lượng)</option>'
-      + '<option value="SV"'+(it.type==='SV'?' selected':'')+'>Dịch vụ (chỉ gọi)</option></select>'
-      + '<button class="btn btn-y btn-sm" onclick="menuSaveRow(this)">Lưu dòng</button>'
-      + '<button class="btn btn-ghost btn-sm" onclick="menuToggleRow(this,'+(it.an?'false':'true')+')">'+(it.an?'Hiện lại':'Ẩn')+'</button>'
-      + '</div>';
-  }).join('') || '<div class="empty">Chưa có món nào.</div>';
-}
-function menuRowData(el){
-  var row = el.closest('.mrow');
-  return {
-    code: row.getAttribute('data-code'),
-    icon: row.querySelector('.ic').value,
-    label: row.querySelector('.lb').value,
-    type: row.querySelector('select').value
-  };
-}
-function menuSaveRow(btn){
-  var d = menuRowData(btn);
-  if(!d.label.trim()){ alert('Nhập tên món.'); return; }
-  api('admin.menuSave', d).then(function(r){
-    if(!r || !r.ok){ alert('Lưu thất bại: '+((r&&r.msg)||'')); return; }
-    loadMenuAdmin();
-  });
-}
-function menuToggleRow(btn, anMoi){
-  var d = menuRowData(btn);
-  d.an = anMoi;
-  api('admin.menuSave', d).then(function(r){
-    if(!r || !r.ok){ alert('Thao tác thất bại.'); return; }
-    loadMenuAdmin();
-  });
-}
-function menuAddNew(){
-  var icon = $('mNewIcon').value.trim();
-  var label = $('mNewLabel').value.trim();
-  var type = $('mNewType').value;
-  if(!label){ alert('Nhập tên món/dịch vụ.'); return; }
-  var code = label.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,20) || ('M'+Date.now().toString(36));
-  api('admin.menuSave', {code:code, icon:icon, label:label, type:type}).then(function(r){
-    if(!r || !r.ok){ alert('Thêm thất bại: '+((r&&r.msg)||'')); return; }
-    $('mNewIcon').value=''; $('mNewLabel').value='';
-    loadMenuAdmin();
-  });
-}
+/* ---------- tab Menu ---------- */
+var NHOM = [
+  {k:'bia',  ten:'🍺 Bia'},
+  {k:'nuoc', ten:'🥤 Nước uống'},
+  {k:'an',   ten:'🍿 Đồ ăn'},
+  {k:'khac', ten:'🧊 Phục vụ thêm'},
+  {k:'dv',   ten:'🛎️ Dịch vụ / báo sự cố'}
+];
+function tenNhom(k){ var n = NHOM.filter(function(x){ return x.k===k; })[0]; return n ? n.ten : k; }
+/* Thư viện icon: toàn emoji có sẵn trong máy (0 KB tải về), chỉ dựng lưới khi bấm mở lần đầu */
+var ICON_TV = [
+  ['Bia & rượu',   '🍺 🍻 🥂 🍷 🍸 🍹 🥃 🍶 🍾 🧉'],
+  ['Nước uống',    '💧 🥤 🧃 🧋 🍵 ☕ 🥛 🧊 🍋 🍊 🥥 ⚡ 🐂 🫖'],
+  ['Đồ ăn',        '🍿 🥜 🍟 🌭 🍔 🍕 🥪 🌮 🍜 🍲 🍝 🍢 🍡 🥟 🍗 🍖 🥩 🦑 🍤 🥚 🧀 🥓'],
+  ['Trái cây',     '🍉 🍇 🍓 🍍 🥭 🍌 🍎 🍐 🍑 🍒 🥝 🍈'],
+  ['Đồ ngọt',      '🍫 🍬 🍭 🍪 🍩 🍰 🧁 🍦 🍨'],
+  ['Phục vụ',      '🧻 🧽 🥢 🍴 🥄 🍽️ 🧂 🚬 🔥 🎂 🎉 🎈 🎁'],
+  ['Dịch vụ / sự cố','🔋 🎤 🎧 🎵 🎶 📺 🔊 🔇 💡 ❄️ 🌡️ 🥵 📶 🛜 🔌 🧹 🚽 🙋 🛎️ 🧾 ⚠️ 🆘 ⭐']
+];
+var MN = { items:[], mau:[], moMode:'', moId:0 };
+
 function loadMenuAdmin(){
   $('menuList').innerHTML = '<div class="empty">Đang tải…</div>';
   api('admin.menuList', {}).then(function(r){
-    if(!r || !r.ok){ $('menuList').innerHTML = '<div class="empty">Không tải được menu.</div>'; return; }
-    drawMenuAdmin(r.items);
+    if(!r || !r.ok){
+      if(r && r.msg==='HET_PHIEN'){ logout(); return; }
+      $('menuList').innerHTML = '<div class="empty">'+esc((r&&r.msg)||'Không tải được menu.')+'</div>'; return;
+    }
+    MN.items = r.items;
+    drawMenuChiNhanh();
+  });
+  if(S.vaiTro==='admin') loadMau(true);
+}
+function drawMenuChiNhanh(){
+  $('menuHint').innerHTML = S.suaMenu
+    ? 'Bấm <b>Còn hàng / Hết hàng</b> khi món về hoặc hết — món hết hàng tự ẩn khỏi màn hình khách. '
+      + '<b>Ẩn</b>: tạm không bán món đó. <b>Bỏ</b>: xoá khỏi menu chi nhánh (đơn cũ không ảnh hưởng). ▲▼ để xếp thứ tự hiện cho khách.'
+    : 'Món nào hết hàng thì bấm <b>Hết hàng</b> — khách sẽ không gọi được món đó nữa. Hàng về thì bấm lại <b>Còn hàng</b>.';
+  if(!MN.items.length){
+    $('menuList').innerHTML = '<div class="empty">Chi nhánh chưa có món nào.'
+      + (S.suaMenu ? ' Bấm <b>＋ Chọn từ menu mẫu</b> để lấy món về.' : ' Nhờ quản lý chi nhánh thêm món.')+'</div>';
+    return;
+  }
+  var html = '';
+  NHOM.forEach(function(g){
+    var ds = MN.items.filter(function(m){ return m.nhom===g.k; });
+    if(!ds.length) return;
+    var soHet = ds.filter(function(m){ return m.hetHang; }).length;
+    html += '<div class="nhomhd">'+g.ten+' <span class="n">'+ds.length+' món'+(soHet?' · '+soHet+' hết hàng':'')+'</span></div>';
+    ds.forEach(function(m, i){
+      var laDv = m.nhom==='dv';
+      var tag = (m.mauId ? '' : '<span class="tagx">riêng</span>') + (m.an ? '<span class="tagx">đang ẩn</span>' : '');
+      var sub = laDv ? 'khách bấm gọi' : 'khách chọn số lượng';
+      html += '<div class="mrow'+(m.an?' an':'')+(m.hetHang?' het':'')+'">'
+        + '<span class="mico">'+esc(m.icon||'•')+'</span>'
+        + '<div class="mten">'+esc(m.label)+tag+'<small>'+sub+'</small></div><div class="grp">';
+      if(!laDv) html += '<button class="btn btn-sm btn-sw '+(m.hetHang?'btn-het':'btn-con')+'" data-act="het" data-id="'+m.id+'">'
+        + (m.hetHang ? '⛔ Hết hàng' : '✅ Còn hàng') + '</button>';
+      if(S.suaMenu){
+        html += '<button class="btn btn-ghost btn-sm btn-ic" data-act="len" data-id="'+m.id+'"'+(i===0?' disabled':'')+' title="Lên">▲</button>'
+          + '<button class="btn btn-ghost btn-sm btn-ic" data-act="xuong" data-id="'+m.id+'"'+(i===ds.length-1?' disabled':'')+' title="Xuống">▼</button>'
+          + (m.mauId ? '' : '<button class="btn btn-ghost btn-sm" data-act="sua" data-id="'+m.id+'">Sửa</button>')
+          + '<button class="btn btn-ghost btn-sm" data-act="an" data-id="'+m.id+'">'+(m.an?'Hiện':'Ẩn')+'</button>'
+          + '<button class="btn btn-bad btn-sm" data-act="bo" data-id="'+m.id+'">Bỏ</button>';
+      }
+      html += '</div></div>';
+    });
+  });
+  $('menuList').innerHTML = html;
+  Array.prototype.forEach.call(document.querySelectorAll('#menuList [data-act]'), function(b){
+    b.addEventListener('click', function(){ menuHanhDong(this.getAttribute('data-act'), Number(this.getAttribute('data-id')), this); });
+  });
+}
+function monTheoId(id){ return MN.items.filter(function(m){ return m.id===id; })[0]; }
+function baoLoi(r, macDinh){ if(r && r.msg==='HET_PHIEN'){ logout(); return; } alert((r&&r.msg) || macDinh); }
+function menuHanhDong(act, id, btn){
+  var m = monTheoId(id); if(!m) return;
+  if(act==='het'){
+    btn.disabled = true;
+    api('admin.menuHetHang', {id:id, het:!m.hetHang}).then(function(r){
+      btn.disabled = false;
+      if(!r || !r.ok){ baoLoi(r, 'Không đổi được.'); return; }
+      m.hetHang = !m.hetHang; drawMenuChiNhanh();
+    });
+  }else if(act==='an'){
+    api('admin.menuAn', {id:id, an:!m.an}).then(function(r){
+      if(!r || !r.ok){ baoLoi(r, 'Không đổi được.'); return; }
+      m.an = !m.an; drawMenuChiNhanh();
+    });
+  }else if(act==='bo'){
+    if(!confirm('Bỏ "'+m.label+'" khỏi menu chi nhánh?'+(m.mauId?'\nCó thể chọn lại từ menu mẫu bất cứ lúc nào.':''))) return;
+    api('admin.menuXoa', {id:id}).then(function(r){
+      if(!r || !r.ok){ baoLoi(r, 'Không bỏ được.'); return; }
+      loadMenuAdmin();
+    });
+  }else if(act==='sua'){
+    moMon('rieng', m);
+  }else if(act==='len' || act==='xuong'){
+    /* đổi chỗ với món kề bên TRONG CÙNG NHÓM, rồi gửi cả thứ tự mới */
+    var cung = MN.items.filter(function(x){ return x.nhom===m.nhom; });
+    var k = cung.indexOf(m), j = act==='len' ? k-1 : k+1;
+    if(j<0 || j>=cung.length) return;
+    var a = MN.items.indexOf(m), b = MN.items.indexOf(cung[j]);
+    MN.items[a] = cung[j]; MN.items[b] = m;
+    drawMenuChiNhanh();
+    api('admin.menuThuTu', {ids: MN.items.map(function(x){ return x.id; })}).then(function(r){
+      if(!r || !r.ok){ baoLoi(r, 'Không lưu được thứ tự.'); loadMenuAdmin(); }
+    });
+  }
+}
+
+/* ---------- chọn món từ menu mẫu ---------- */
+function moChonMau(){
+  $('chonMauList').innerHTML = '<div class="empty">Đang tải…</div>';
+  $('modalChonMau').classList.add('show');
+  api('admin.mauList', {}).then(function(r){
+    if(!r || !r.ok){ $('chonMauList').innerHTML = '<div class="empty">'+esc((r&&r.msg)||'Không tải được menu mẫu.')+'</div>'; return; }
+    var html = '';
+    NHOM.forEach(function(g){
+      var ds = r.items.filter(function(m){ return m.nhom===g.k && !m.an; });
+      if(!ds.length) return;
+      html += '<div class="nhomhd">'+g.ten+'<span class="lnk" data-nhom="'+g.k+'">chọn cả nhóm</span></div>';
+      ds.forEach(function(m){
+        html += '<label class="mauchon'+(m.daChon?' co':'')+'"><input type="checkbox" data-mau="'+m.id+'" data-g="'+g.k+'"'
+          + (m.daChon?' checked disabled':'')+'><span class="mico">'+esc(m.icon||'•')+'</span>'
+          + '<span>'+esc(m.ten)+(m.daChon?' <span class="tagx">đã có</span>':'')+'</span></label>';
+      });
+    });
+    $('chonMauList').innerHTML = html || '<div class="empty">Menu mẫu đang trống.</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('#chonMauList [data-nhom]'), function(l){
+      l.addEventListener('click', function(){
+        var g = this.getAttribute('data-nhom');
+        Array.prototype.forEach.call(document.querySelectorAll('#chonMauList input[data-g="'+g+'"]:not(:disabled)'), function(c){ c.checked = true; });
+      });
+    });
+  });
+}
+function xacNhanChonMau(){
+  var ids = Array.prototype.map.call(document.querySelectorAll('#chonMauList input[data-mau]:checked:not(:disabled)'),
+    function(c){ return Number(c.getAttribute('data-mau')); });
+  if(!ids.length){ alert('Chưa tick món nào.'); return; }
+  $('btnChonMauOk').disabled = true;
+  api('admin.menuThemMau', {mauIds:ids}).then(function(r){
+    $('btnChonMauOk').disabled = false;
+    if(!r || !r.ok){ baoLoi(r, 'Không thêm được.'); return; }
+    $('modalChonMau').classList.remove('show');
+    loadMenuAdmin();
+  }).catch(function(){ $('btnChonMauOk').disabled = false; alert('Mất kết nối.'); });
+}
+
+/* ---------- tạo/sửa món + thư viện icon ---------- */
+function dungThuVien(){
+  var tv = $('icThuVien');
+  if(tv.getAttribute('data-xong')) return;
+  tv.innerHTML = ICON_TV.map(function(g){
+    return '<div class="lbl">'+g[0]+'</div><div class="luoi">'
+      + g[1].split(' ').map(function(e){ return '<span>'+e+'</span>'; }).join('') + '</div>';
+  }).join('');
+  Array.prototype.forEach.call(tv.querySelectorAll('.luoi span'), function(sp){
+    sp.addEventListener('click', function(){
+      $('monIcon').textContent = this.textContent;
+      Array.prototype.forEach.call(tv.querySelectorAll('.luoi span.on'), function(x){ x.className=''; });
+      this.className = 'on';
+      tv.classList.remove('show');
+    });
+  });
+  tv.setAttribute('data-xong','1');
+}
+function moMon(mode, m){
+  MN.moMode = mode; MN.moId = m ? m.id : 0;
+  $('monTieuDe').textContent = mode==='mau' ? (m ? 'Sửa món mẫu' : 'Thêm món mẫu') : (m ? 'Sửa món riêng' : 'Tạo món riêng');
+  $('monGhiChu').innerHTML = mode==='mau'
+    ? 'Món mẫu dùng chung toàn chuỗi. Sửa ở đây thì mọi chi nhánh đang dùng món này cập nhật theo.'
+    : 'Chỉ tạo khi menu mẫu <b>không có</b> món này. Món riêng chỉ hiện ở chi nhánh của mình.';
+  $('monNhom').innerHTML = NHOM.map(function(g){ return '<option value="'+g.k+'">'+g.ten+'</option>'; }).join('');
+  $('monTen').value = m ? (m.label || m.ten || '') : '';
+  $('monNhom').value = m ? m.nhom : 'nuoc';
+  $('monIcon').textContent = (m && m.icon) ? m.icon : '🍽️';
+  $('icThuVien').classList.remove('show');
+  $('modalMon').classList.add('show');
+}
+function luuMon(vanTao){
+  var ten = $('monTen').value.trim(), nhom = $('monNhom').value, icon = $('monIcon').textContent;
+  if(!ten){ alert('Nhập tên món.'); return; }
+  var laMau = MN.moMode==='mau';
+  var data = laMau ? {ten:ten, nhom:nhom, icon:icon} : {label:ten, nhom:nhom, icon:icon};
+  if(MN.moId) data.id = MN.moId;
+  if(vanTao) data.vanTao = true;
+  $('btnMonLuu').disabled = true;
+  api(laMau ? 'admin.mauSave' : 'admin.menuSave', data).then(function(r){
+    $('btnMonLuu').disabled = false;
+    if(r && !r.ok && r.error==='co_trong_mau'){
+      if(confirm(r.msg + '\n\nBấm OK nếu vẫn muốn tạo món riêng (khác với món mẫu).')) luuMon(true);
+      return;
+    }
+    if(!r || !r.ok){ baoLoi(r, 'Lưu thất bại.'); return; }
+    $('modalMon').classList.remove('show');
+    loadMenuAdmin();
+  }).catch(function(){ $('btnMonLuu').disabled = false; alert('Mất kết nối.'); });
+}
+
+/* ---------- menu mẫu toàn chuỗi (admin) ---------- */
+function loadMau(){
+  api('admin.mauList', {}).then(function(r){
+    if(!r || !r.ok){ $('mauList').innerHTML = '<div class="empty">'+esc((r&&r.msg)||'Không tải được.')+'</div>'; return; }
+    MN.mau = r.items;
+    var html = '';
+    NHOM.forEach(function(g){
+      var ds = r.items.filter(function(m){ return m.nhom===g.k; });
+      if(!ds.length) return;
+      html += '<div class="nhomhd">'+g.ten+' <span class="n">'+ds.length+' món</span></div>';
+      ds.forEach(function(m){
+        html += '<div class="mrow'+(m.an?' an':'')+'"><span class="mico">'+esc(m.icon||'•')+'</span>'
+          + '<div class="mten">'+esc(m.ten)+(m.an?'<span class="tagx">ngừng dùng</span>':'')+'<small>mã '+esc(m.ma)+'</small></div><div class="grp">'
+          + '<button class="btn btn-ghost btn-sm" data-mau-sua="'+m.id+'">Sửa</button>'
+          + '<button class="btn btn-ghost btn-sm" data-mau-an="'+m.id+'">'+(m.an?'Dùng lại':'Ngừng dùng')+'</button></div></div>';
+      });
+    });
+    $('mauList').innerHTML = html || '<div class="empty">Chưa có món mẫu.</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('#mauList [data-mau-sua]'), function(b){
+      b.addEventListener('click', function(){
+        var id = Number(this.getAttribute('data-mau-sua'));
+        moMon('mau', MN.mau.filter(function(x){ return x.id===id; })[0]);
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#mauList [data-mau-an]'), function(b){
+      b.addEventListener('click', function(){
+        var id = Number(this.getAttribute('data-mau-an'));
+        var m = MN.mau.filter(function(x){ return x.id===id; })[0];
+        api('admin.mauAn', {id:id, an:!m.an}).then(function(r){
+          if(!r || !r.ok){ baoLoi(r, 'Không đổi được.'); return; }
+          loadMau();
+        });
+      });
+    });
   });
 }
 
@@ -898,7 +1145,14 @@ $('lgP').addEventListener('keydown', function(e){ if(e.key==='Enter') login(); }
 $('btnOut').addEventListener('click', logout);
 $('btnCsv').addEventListener('click', csv);
 $('btnPrint').addEventListener('click', printQr);
-$('btnMenuAdd').addEventListener('click', menuAddNew);
+$('btnChonMau').addEventListener('click', moChonMau);
+$('btnChonMauOk').addEventListener('click', xacNhanChonMau);
+$('btnChonMauHuy').addEventListener('click', function(){ $('modalChonMau').classList.remove('show'); });
+$('btnMonRieng').addEventListener('click', function(){ moMon('rieng', null); });
+$('btnMauMoi').addEventListener('click', function(){ moMon('mau', null); });
+$('btnMonLuu').addEventListener('click', function(){ luuMon(false); });
+$('btnMonHuy').addEventListener('click', function(){ $('modalMon').classList.remove('show'); });
+$('monIcon').addEventListener('click', function(){ dungThuVien(); $('icThuVien').classList.toggle('show'); });
 $('btnAccAdd').addEventListener('click', openAccModal);
 $('btnAccCancel').addEventListener('click', closeAccModal);
 $('btnAccSubmit').addEventListener('click', submitAccAdd);
