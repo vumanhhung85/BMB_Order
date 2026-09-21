@@ -296,8 +296,8 @@ var CFG = {
            'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js']
 };
 
-/* Menu dự phòng — dùng khi chưa lấy được menu từ server (mất mạng, lỗi API).
-   Đồng bộ với seedMenuMacDinh() trong Code.gs. */
+/* Menu dự phòng — CHỈ dùng khi không gọi được server (mất mạng, lỗi API).
+   Mã món trùng với mã menu mẫu trong bảng order_mon_mau (migrate-menu-mau.sql). */
 var MENU_FALLBACK = [
   {code:'PIN',  label:'Thay pin micro',      type:'SV', icon:'🔋'},
   {code:'MIC',  label:'Micro rè / hú',       type:'SV', icon:'🎤'},
@@ -317,7 +317,7 @@ var MENU = MENU_FALLBACK.slice();
 var $ = function(id){ return document.getElementById(id); };
 var ST = {
   token:'', room:'', branch:'', branchName:'',
-  cart:{}, orderId:'', pollN:0, pollTm:null, idleTm:null, ip:''
+  cart:{}, orderId:'', pollN:0, pollTm:null, idleTm:null, ip:'', menuLuc:0
 };
 /* trạng thái riêng của phần quét mã */
 var SCAN = { stream:null, tm:null, det:null, engine:'', canvas:null, ctx:null, busy:false, camOk:false };
@@ -356,12 +356,22 @@ function api(action, data){
 
 /* ---------- lấy menu động theo chi nhánh ---------- */
 function loadMenu(){
+  if(!ST.branch) return;
+  ST.menuLuc = Date.now();
   api('menu.get', {branchId: ST.branch}).then(function(r){
-    MENU = (r && r.ok && r.items && r.items.length) ? r.items : MENU_FALLBACK.slice();
-    drawMenu(); render();
+    /* Menu rỗng (vd tất cả món đều hết hàng) là menu THẬT — không được thay bằng menu dự phòng */
+    if(r && r.ok && r.items) MENU = r.items;
+    else if(!MENU.length) MENU = MENU_FALLBACK.slice();
+    donGioHang(); drawMenu(); render();
   }).catch(function(){
-    MENU = MENU_FALLBACK.slice();
+    if(!MENU.length) MENU = MENU_FALLBACK.slice();
     drawMenu(); render();
+  });
+}
+/* Bỏ khỏi giỏ những món vừa hết hàng / bị ẩn */
+function donGioHang(){
+  Object.keys(ST.cart).forEach(function(c){
+    if(!MENU.some(function(m){ return m.code===c; })) delete ST.cart[c];
   });
 }
 
@@ -371,12 +381,12 @@ function drawMenu(){
   var dr = MENU.filter(function(m){ return m.type==='DR'; });
 
   $('gSv').innerHTML = sv.map(function(m){
-    return '<div class="svbtn" data-c="'+m.code+'"><div class="ico">'+m.icon+'</div><div class="tx">'+esc(m.label)+'</div></div>';
+    return '<div class="svbtn" data-c="'+esc(m.code)+'"><div class="ico">'+esc(m.icon)+'</div><div class="tx">'+esc(m.label)+'</div></div>';
   }).join('') || '<div class="tiny">Chưa có dịch vụ nào.</div>';
 
   $('gDr').innerHTML = dr.map(function(m){
-    return '<div class="drow" data-c="'+m.code+'">'
-      + '<div class="di"><span class="dic">'+m.icon+'</span><span class="dtx">'+esc(m.label)+'</span></div>'
+    return '<div class="drow" data-c="'+esc(m.code)+'">'
+      + '<div class="di"><span class="dic">'+esc(m.icon)+'</span><span class="dtx">'+esc(m.label)+'</span></div>'
       + '<div class="qty"><button class="qm" data-d="-1">–</button><span class="qn">0</span><button class="qp" data-d="1">+</button></div>'
       + '</div>';
   }).join('') || '<div class="tiny">Chưa có nước nào.</div>';
@@ -464,7 +474,12 @@ function send(){
     source: isTablet() ? 'TABLET' : 'QR'
   }).then(function(r){
     $('btnSend').disabled = false;
-    if(!r || !r.ok){ alert('Không gửi được, vui lòng thử lại hoặc báo nhân viên.'); return; }
+    if(!r || !r.ok){
+      alert((r && r.msg) || 'Không gửi được, vui lòng thử lại hoặc báo nhân viên.');
+      /* món vừa hết hàng / bị bỏ khỏi menu → tải lại menu, giỏ tự bỏ món đó */
+      if(r && (r.error==='het_hang' || r.error==='bad_item')) loadMenu();
+      return;
+    }
     ST.orderId = r.orderId;
     $('sentList').textContent = listTxt;
     $('stTx').textContent = 'Đang chờ quầy tiếp nhận…';
@@ -880,6 +895,9 @@ function flashRoom(){
 
 /* ---------- tự dọn màn hình khi khách bỏ đi ---------- */
 function touch(){
+  /* Khách bắt đầu bấm sau một lúc máy để yên → lấy menu mới (món hết hàng biến mất).
+     Chỉ làm khi giỏ đang trống để không xáo trộn lúc khách đang chọn. Máy để yên thì 0 request. */
+  if(ST.branch && Date.now() - ST.menuLuc > 120000 && !Object.keys(ST.cart).length) loadMenu();
   if(ST.idleTm) clearTimeout(ST.idleTm);
   ST.idleTm = setTimeout(function(){
     if($('ovSent').style.display==='flex') return;
