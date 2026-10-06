@@ -135,6 +135,20 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
 .st{font-size:14.5px;color:var(--txt-mute);margin-top:8px;min-height:22px}
 .dot{display:inline-block;width:9px;height:9px;border-radius:5px;background:var(--warn);margin-right:7px}
 .dot.go{background:var(--ok)}
+
+.lsbtn{display:block;width:100%;margin:0 0 14px;padding:11px 14px;border-radius:14px;border:1px dashed var(--line);
+  background:rgba(255,255,255,.04);color:var(--txt-dim);font:700 14px inherit;font-family:inherit;cursor:pointer}
+.lsbtn:active{transform:scale(.98)}
+.lsbox{max-height:52vh;overflow:auto;text-align:left;margin:0 0 14px}
+.lsit{border:1px solid var(--line-soft);border-radius:14px;padding:10px 12px;margin-bottom:9px;background:rgba(20,6,31,.4)}
+.lsit .h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--txt-mute)}
+.lsit .b{font-size:14.5px;color:var(--txt);margin-top:5px;line-height:1.5}
+.lsit .n{font-size:12.5px;color:var(--txt-mute);margin-top:3px;font-style:italic}
+.pill{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.pill.moi{background:rgba(255,176,32,.18);color:var(--warn)}
+.pill.nhan{background:rgba(60,200,120,.18);color:var(--ok)}
+.pill.xong{background:rgba(255,255,255,.1);color:var(--txt-dim)}
+.pill.huy{background:rgba(255,90,90,.16);color:#ff8c8c}
 </style>
 </head>
 <body>
@@ -148,6 +162,8 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
       <div class="val" id="roomVal">--</div>
     </div>
   </header>
+
+  <button class="lsbtn" id="btnLs">📋 Đơn đã gọi</button>
 
   <h2>CẦN HỖ TRỢ</h2>
   <div class="svgrid" id="gSv"></div>
@@ -181,7 +197,18 @@ h2{font-size:13px;color:var(--txt-mute);letter-spacing:.5px;margin:20px 2px 10px
     <div class="st"><span class="dot" id="stDot"></span><span id="stTx">Đang chờ quầy tiếp nhận…</span></div>
     <div class="row" style="margin-top:18px">
       <button class="btn btn-ghost" id="btnBack">Đóng</button>
+      <button class="btn btn-y" id="btnSentLs">Xem đơn đã gọi</button>
     </div>
+  </div>
+</div>
+
+<!-- Lớp phủ: đơn đã gọi của phòng -->
+<div class="ov" id="ovLs">
+  <div class="card">
+    <h3>Đơn đã gọi</h3>
+    <p id="lsHint">Các yêu cầu phòng bạn đã gửi. Tình trạng tự cập nhật.</p>
+    <div class="lsbox" id="lsBox"></div>
+    <div class="row"><button class="btn btn-ghost" id="btnLsClose">Đóng</button></div>
   </div>
 </div>
 
@@ -581,7 +608,7 @@ function dangKySW(){
   /* có bản mới → chỉ tải lại khi máy đang rảnh, không cắt ngang lúc khách đang gọi */
   navigator.serviceWorker.addEventListener('controllerchange', function(){
     if(Object.keys(ST.cart).length) return;
-    if($('ovSent').style.display==='flex' || $('ovPin').style.display==='flex') return;
+    if($('ovSent').style.display==='flex' || $('ovLs').style.display==='flex' || $('ovPin').style.display==='flex') return;
     if($('ovStaff').style.display==='flex' || $('ovSwap').style.display==='flex') return;
     location.reload();
   });
@@ -900,12 +927,58 @@ function touch(){
   if(ST.branch && Date.now() - ST.menuLuc > 120000 && !Object.keys(ST.cart).length) loadMenu();
   if(ST.idleTm) clearTimeout(ST.idleTm);
   ST.idleTm = setTimeout(function(){
-    if($('ovSent').style.display==='flex') return;
+    if($('ovSent').style.display==='flex' || $('ovLs').style.display==='flex') return;
     if($('ovPin').style.display==='flex') return;
     if($('ovStaff').style.display==='flex') return;
     ST.cart = {}; $('note').value=''; render();
     window.scrollTo(0,0);
   }, CFG.IDLE*1000);
+}
+
+/* ---------- Đơn đã gọi (khách xem lại các yêu cầu đã gửi) ---------- */
+var LSTM = null;
+var LS_TXT = {
+  MOI :['moi','Đã gửi tới nhân viên'],
+  NHAN:['nhan','Đang phục vụ'],
+  XONG:['xong','Đã xong'],
+  HUY :['huy','Đã huỷ']
+};
+function lsGio(ms){
+  var d = new Date(ms);
+  return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function lsVe(orders){
+  var box = $('lsBox');
+  if(!orders.length){ box.innerHTML = '<p style="text-align:center;margin:8px 0">Chưa có yêu cầu nào.</p>'; return; }
+  box.innerHTML = orders.map(function(o){
+    var st = LS_TXT[o.status] || ['xong', o.status];
+    var body = o.items.map(function(i){
+      return esc((i.icon?i.icon+' ':'')+i.label+(i.type==='DR' ? ' ×'+i.qty : ''));
+    }).join('<br>');
+    return '<div class="lsit"><div class="h"><span>'+lsGio(o.at)+'</span><span class="pill '+st[0]+'">'+esc(st[1])+'</span></div>'
+      + '<div class="b">'+body+'</div>'
+      + (o.note ? '<div class="n">“'+esc(o.note)+'”</div>' : '')
+      + '</div>';
+  }).join('');
+}
+function lsNap(){
+  if(!ST.token) return;
+  api('don.cuaPhong', {token: ST.token}).then(function(r){
+    if(r && r.ok) lsVe(r.orders || []);
+  }).catch(function(){});
+}
+function lsMo(){
+  if(!ST.token){ toast('Máy chưa được gán phòng.'); return; }
+  $('lsBox').innerHTML = '<p style="text-align:center;margin:8px 0">Đang tải…</p>';
+  $('ovLs').style.display = 'flex';
+  lsNap();
+  if(LSTM) clearInterval(LSTM);
+  LSTM = setInterval(lsNap, 8000);
+}
+function lsDong(){
+  $('ovLs').style.display = 'none';
+  if(LSTM){ clearInterval(LSTM); LSTM = null; }
+  touch();
 }
 
 /* ---------- khởi động ---------- */
@@ -916,6 +989,9 @@ function touch(){
   $('btnSend').addEventListener('click', send);
   $('btnClear').addEventListener('click', function(){ ST.cart={}; $('note').value=''; render(); touch(); });
   $('btnBack').addEventListener('click', closeSent);
+  $('btnLs').addEventListener('click', lsMo);
+  $('btnSentLs').addEventListener('click', function(){ closeSent(); lsMo(); });
+  $('btnLsClose').addEventListener('click', lsDong);
 
   $('btnInit').addEventListener('click', askStaff);
   $('btnStaffOk').addEventListener('click', staffOk);
